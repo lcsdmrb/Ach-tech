@@ -26,9 +26,10 @@ function sanitize(value: unknown): string {
     .trim()
     .slice(0, 2000)                        // limite la taille
     .replace(/<[^>]*>/g, '')              // enlève balises HTML
-    .replace(/[<>"'`]/g, (c) =>          // encode les caractères spéciaux
-      ({ '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#x27;', '`': '&#x60;' })[c] ?? c
-    )
+    .replace(/[<>"'`]/g, (c) => {        // encode les caractères spéciaux
+      const map: Record<string, string> = { '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#x27;', '`': '&#x60;' }
+      return map[c] ?? c
+    })
 }
 
 // ── Route POST /api/contact ──────────────────────────────────────────────────

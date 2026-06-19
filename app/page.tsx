@@ -1,3 +1,7 @@
+// Désactive la génération statique — nécessaire car le site utilise
+// Framer Motion et des composants 100% client-side
+export const dynamic = 'force-dynamic'
+
 import Navbar        from '@/components/Navbar'
 import Hero          from '@/components/Hero'
 import Values        from '@/components/Values'
