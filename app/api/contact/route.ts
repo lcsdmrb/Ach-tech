@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
   const { error } = await resend.emails.send({
     from: fromEmail,
     to:   toEmail,
-    replyTo: email,
+    reply_to: email,
     subject: `Nouveau devis Ach'Tech — ${prenom} ${nom} (${service})`,
     html: `
       <h2 style="color:#E85A0A">Nouvelle demande de devis</h2>
