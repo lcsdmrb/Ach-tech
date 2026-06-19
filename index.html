@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ach'Tech — Chauffage & Finitions intérieures</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Outfit', sans-serif; color: #111; background: #fff; overflow-x: hidden; }
+
+    :root {
+      --o:   #E85A0A;
+      --od:  #C04500;
+      --ol:  #FF7A35;
+      --blk: #0C0C0C;
+      --gry: #F5F4F2;
+      --pad: 80px;
+    }
+
+    /* ── PROGRESS BAR ── */
+    #bar-track {
+      position: fixed; top: 10px; left: 20px; right: 20px;
+      height: 3px;
+      background: rgba(255,255,255,.06);
+      border-radius: 99px;
+      z-index: 9999;
+      pointer-events: none;
+    }
+    #bar {
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, var(--o), var(--ol));
+      border-radius: 99px;
+      box-shadow: 0 0 10px rgba(232,90,10,.5);
+      transition: width .06s linear;
+    }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: #111; }
+    ::-webkit-scrollbar-thumb { background: var(--o); border-radius: 4px; }
+
+    /* ── KEYFRAMES ── */
+    @keyframes up   { from { opacity:0; transform:translateY(32px)} to { opacity:1; transform:none} }
+    @keyframes in   { from { opacity:0 } to { opacity:1 } }
+    @keyframes grow { from { transform:scaleX(0) } to { transform:scaleX(1) } }
+    @keyframes run  { from { transform:translateX(0) } to { transform:translateX(-50%) } }
+    @keyframes bob  { 0%,100% { transform:translateY(0) } 50% { transform:translateY(-12px) } }
+    @keyframes spin { to { transform:rotate(360deg) } }
+
+    .reveal {
+      opacity: 0; transform: translateY(28px);
+      transition: opacity .75s cubic-bezier(.25,.46,.45,.94), transform .75s cubic-bezier(.25,.46,.45,.94);
+    }
+    .reveal.on { opacity: 1; transform: none; }
+    .d1 { transition-delay: .08s !important }
+    .d2 { transition-delay: .17s !important }
+    .d3 { transition-delay: .26s !important }
+    .d4 { transition-delay: .35s !important }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 14px 28px; border-radius: 8px;
+      font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600;
+      text-decoration: none; cursor: pointer; border: none;
+      transition: transform .2s, box-shadow .2s, background .2s;
+    }
+    .btn:hover { transform: translateY(-2px); }
+    .btn-fill { background: var(--o); color: #fff; box-shadow: 0 4px 18px rgba(232,90,10,.3); }
+    .btn-fill:hover { background: var(--od); box-shadow: 0 8px 28px rgba(232,90,10,.4); }
+    .btn-ghost { background: transparent; color: #fff; border: 1.5px solid rgba(255,255,255,.28); }
+    .btn-ghost:hover { border-color: rgba(255,255,255,.65); background: rgba(255,255,255,.07); }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      height: 72px; padding: 0 var(--pad);
+      display: flex; align-items: center; justify-content: space-between;
+      background: transparent;
+      border-bottom: 1px solid transparent;
+      transition: background .5s, border-color .5s, backdrop-filter .5s, box-shadow .5s;
+    }
+    nav.stuck {
+      background: rgba(8,8,8,.78);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-color: rgba(255,255,255,.06);
+      box-shadow: 0 2px 24px rgba(0,0,0,.25);
+    }
+    .nav-logo { display: flex; align-items: center; text-decoration: none; }
+    .nav-logo img { height: 50px; width: auto; mix-blend-mode: screen; display: block; }
+    .nav-logo-txt { font-size: 20px; font-weight: 700; color: #fff; letter-spacing: -.3px; }
+    .nav-logo-txt span { color: var(--o); }
+    .nav-logo-fallback { display: none; align-items: center; gap: 10px; }
+    .nav-logo-icon { width: 38px; height: 38px; background: var(--o); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+    .nav-logo-icon i { font-size: 20px; color: #fff; }
+    nav ul { display: flex; gap: 32px; list-style: none; }
+    nav ul a { color: rgba(255,255,255,.65); font-size: 14px; font-weight: 400; text-decoration: none; position: relative; transition: color .2s; }
+    nav ul a::after { content:''; position:absolute; bottom:-3px; left:0; width:0; height:1.5px; background:var(--o); transition:width .3s; }
+    nav ul a:hover { color: #fff; }
+    nav ul a:hover::after { width: 100%; }
+    .nav-cta { background: var(--o); color: #fff; padding: 9px 20px; border-radius: 7px; font-size: 13px; font-weight: 600; text-decoration: none; letter-spacing: .1px; transition: background .2s, box-shadow .2s; box-shadow: 0 3px 14px rgba(232,90,10,.3); }
+    .nav-cta:hover { background: var(--od); box-shadow: 0 5px 20px rgba(232,90,10,.4); }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative; min-height: 100vh;
+      display: flex; align-items: center;
+      background: var(--blk); overflow: hidden;
+    }
+    .hero-grid {
+      position: absolute; inset: 0;
+      background-image: linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+      background-size: 68px 68px;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 100%);
+      -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 100%);
+    }
+    .hero-orb1 { position:absolute; width:560px; height:560px; border-radius:50%; background:radial-gradient(circle,rgba(232,90,10,.16) 0%,transparent 70%); right:2%; top:50%; transform:translateY(-50%); filter:blur(70px); animation:bob 10s ease-in-out infinite; }
+    .hero-orb2 { position:absolute; width:320px; height:320px; border-radius:50%; background:radial-gradient(circle,rgba(255,130,60,.09) 0%,transparent 70%); right:25%; bottom:5%; filter:blur(55px); animation:bob 14s ease-in-out infinite 3s; }
+    .hero-left {
+      position: relative; z-index: 1;
+      padding: 140px var(--pad) 100px;
+      flex: 1; max-width: 680px;
+    }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: rgba(232,90,10,.1); border: 1px solid rgba(232,90,10,.3);
+      color: #FF9A5C; font-size: 11px; font-weight: 600;
+      padding: 5px 14px; border-radius: 30px;
+      letter-spacing: .6px; text-transform: uppercase;
+      margin-bottom: 26px;
+      animation: in 1s ease both;
+    }
+    .hero h1 {
+      color: #fff; font-size: 64px; font-weight: 600;
+      line-height: 1.05; letter-spacing: -2px;
+      animation: up 1s ease .12s both;
+    }
+    .hero h1 .hl { color: var(--o); }
+    .hero-rule { width: 48px; height: 3px; background: var(--o); border-radius: 3px; margin: 26px 0 28px; animation: grow .9s ease .45s both; transform-origin: left; }
+    .hero-sub { color: rgba(255,255,255,.45); font-size: 16px; font-weight: 300; line-height: 1.85; max-width: 480px; margin-bottom: 36px; animation: up 1s ease .28s both; }
+    .hero-btns { display: flex; gap: 12px; flex-wrap: wrap; animation: up 1s ease .42s both; }
+    .hero-kpis {
+      display: flex; gap: 48px; margin-top: 56px;
+      padding-top: 44px; border-top: 1px solid rgba(255,255,255,.07);
+      animation: up 1s ease .56s both;
+    }
+    .kpi-num { font-size: 36px; font-weight: 700; color: #fff; line-height: 1; letter-spacing: -1.5px; }
+    .kpi-num em { color: var(--o); font-style: normal; font-size: 24px; }
+    .kpi-lbl { color: rgba(255,255,255,.32); font-size: 12px; font-weight: 400; margin-top: 5px; letter-spacing: .2px; }
+
+    /* hero floating card */
+    .hero-right {
+      position: relative; z-index: 1;
+      flex-shrink: 0; width: 340px;
+      margin-right: var(--pad);
+      display: flex; flex-direction: column; gap: 14px;
+      animation: up 1.1s ease .7s both;
+    }
+    .hcard {
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 14px; padding: 20px 22px;
+      display: flex; align-items: center; gap: 16px;
+      backdrop-filter: blur(8px);
+      transition: border-color .25s;
+    }
+    .hcard:hover { border-color: rgba(232,90,10,.3); }
+    .hcard-icon { width: 44px; height: 44px; background: rgba(232,90,10,.12); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .hcard-icon i { font-size: 22px; color: var(--o); }
+    .hcard-label { font-size: 12px; color: rgba(255,255,255,.4); margin-bottom: 3px; font-weight: 400; }
+    .hcard-val { font-size: 15px; font-weight: 600; color: #fff; }
+
+    /* scroll hint */
+    .hero-scroll { position:absolute; bottom:32px; left:50%; transform:translateX(-50%); z-index:1; display:flex; flex-direction:column; align-items:center; gap:8px; animation:in 1s ease 1.3s both; }
+    .mouse { width:20px; height:32px; border:1.5px solid rgba(255,255,255,.18); border-radius:10px; position:relative; }
+    .mouse::after { content:''; position:absolute; top:5px; left:50%; transform:translateX(-50%); width:2.5px; height:7px; background:var(--o); border-radius:2px; animation:bob 1.6s ease-in-out infinite; }
+    .hero-scroll span { color:rgba(255,255,255,.25); font-size:9px; letter-spacing:2.5px; text-transform:uppercase; }
+
+    /* ── SECTIONS ── */
+    .pad { padding: 96px var(--pad); }
+    .tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(232,90,10,.07); border: 1px solid rgba(232,90,10,.18);
+      color: var(--o); font-size: 10px; font-weight: 700;
+      padding: 4px 13px; border-radius: 30px;
+      letter-spacing: 1.4px; text-transform: uppercase; margin-bottom: 16px;
+    }
+    h2.sec { font-size: 40px; font-weight: 600; letter-spacing: -1px; line-height: 1.12; margin-bottom: 14px; }
+    p.sec-sub { color: #999; font-size: 15px; font-weight: 300; line-height: 1.8; max-width: 520px; margin-bottom: 56px; }
+    .tc { text-align: center; }
+    .tc p.sec-sub { margin-left: auto; margin-right: auto; }
+
+    /* ── VALUES ── */
+    .sec-values { background: var(--gry); }
+    .grid3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 22px; }
+    .vcard {
+      background: #fff; border-radius: 16px; padding: 36px 30px;
+      border: 1px solid rgba(0,0,0,.055);
+      position: relative; overflow: hidden;
+      transition: transform .3s, box-shadow .3s;
+    }
+    .vcard::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,var(--o),var(--ol)); transform:scaleX(0); transform-origin:left; transition:transform .4s; }
+    .vcard:hover { transform:translateY(-5px); box-shadow:0 18px 48px rgba(0,0,0,.08); }
+    .vcard:hover::before { transform:scaleX(1); }
+    .vcard-n { font-size: 10px; font-weight: 700; color: rgba(232,90,10,.4); letter-spacing: 2px; margin-bottom: 18px; }
+    .vicon { width:52px; height:52px; background:rgba(232,90,10,.07); border-radius:12px; display:flex; align-items:center; justify-content:center; margin-bottom:20px; }
+    .vicon i { font-size:24px; color:var(--o); }
+    .vcard h3 { font-size: 17px; font-weight: 600; margin-bottom: 10px; }
+    .vcard p { font-size: 13.5px; color: #888; line-height: 1.75; font-weight: 300; }
+
+    /* ── SERVICES ── */
+    .sec-services { background: var(--blk); position: relative; overflow: hidden; }
+    .sec-services h2.sec, .sec-services .tag { color: #fff; }
+    .sec-services .tag { background:rgba(232,90,10,.12); border-color:rgba(232,90,10,.28); color:var(--ol); }
+    .sec-services p.sec-sub { color: #555; }
+    .svc-orb { position:absolute; width:800px; height:800px; border-radius:50%; background:rgba(232,90,10,.04); top:-300px; right:-300px; filter:blur(100px); pointer-events:none; }
+    .scard {
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 16px; padding: 32px 26px;
+      transition: border-color .3s, transform .3s, background .3s;
+      position: relative; overflow: hidden;
+    }
+    .scard:hover { border-color:rgba(232,90,10,.28); background:rgba(232,90,10,.025); transform:translateY(-4px); }
+    .scard-n { font-size:9.5px; color:rgba(232,90,10,.55); font-weight:700; letter-spacing:2.5px; text-transform:uppercase; margin-bottom:18px; }
+    .sicon { width:48px; height:48px; background:rgba(232,90,10,.1); border-radius:11px; display:flex; align-items:center; justify-content:center; margin-bottom:18px; }
+    .sicon i { font-size:22px; color:var(--o); }
+    .scard h3 { color:#fff; font-size:17px; font-weight:600; margin-bottom:10px; letter-spacing:-.2px; }
+    .scard > p { color:#555; font-size:13.5px; line-height:1.7; margin-bottom:20px; font-weight:300; }
+    .ssep { width:24px; height:1.5px; background:rgba(232,90,10,.35); border-radius:2px; margin-bottom:16px; }
+    .slist { list-style:none; }
+    .slist li { color:#4a4a4a; font-size:13px; padding:4px 0; display:flex; align-items:center; gap:9px; font-weight:300; }
+    .slist li i { font-size:13px; color:rgba(232,90,10,.5); }
+
+    /* ── BRANDS ── */
+    .sec-brands { background:#fff; border-top:1px solid #f0eeec; border-bottom:1px solid #f0eeec; overflow:hidden; }
+    .brands-hd { display:flex; align-items:center; gap:18px; padding:34px var(--pad) 16px; }
+    .brands-hd-line { flex:1; height:1px; background:#eee; max-width:160px; }
+    .brands-hd span { color:#ccc; font-size:10px; letter-spacing:2px; text-transform:uppercase; font-weight:500; white-space:nowrap; }
+    .mq-wrap { padding:16px 0 32px; mask-image:linear-gradient(90deg,transparent,black 8%,black 92%,transparent); -webkit-mask-image:linear-gradient(90deg,transparent,black 8%,black 92%,transparent); }
+    .mq-track { display:flex; width:max-content; animation:run 30s linear infinite; }
+    .mq-track:hover { animation-play-state:paused; }
+    .blogo { display:flex; align-items:center; gap:12px; padding:14px 28px; margin:0 8px; border:1px solid #ececec; border-radius:10px; background:#fafafa; white-space:nowrap; transition:border-color .25s, background .25s, box-shadow .25s; cursor:default; }
+    .blogo:hover { border-color:rgba(232,90,10,.2); background:#fff; box-shadow:0 4px 16px rgba(0,0,0,.06); }
+    .blogo img { height:28px; width:auto; max-width:100px; object-fit:contain; filter:grayscale(1) opacity(.55); transition:filter .3s; display:block; }
+    .blogo:hover img { filter:grayscale(0) opacity(1); }
+    .blogo span { font-size:13px; font-weight:600; color:#aaa; letter-spacing:.2px; }
+
+    /* ── GARANTIES ── */
+    .sec-infos { background:var(--blk); position:relative; overflow:hidden; }
+    .sec-infos h2.sec { color:#fff; }
+    .sec-infos .tag { background:rgba(232,90,10,.12); border-color:rgba(232,90,10,.28); color:var(--ol); }
+    .infos-glow { position:absolute; bottom:-200px; left:50%; transform:translateX(-50%); width:1000px; height:500px; background:rgba(232,90,10,.05); border-radius:50%; filter:blur(80px); pointer-events:none; }
+    .grid4 { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; position:relative; z-index:1; }
+    .icard {
+      background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.07);
+      border-radius:16px; padding:30px 20px; text-align:center;
+      transition:background .3s, border-color .3s, transform .3s;
+      position:relative; overflow:hidden;
+    }
+    .icard::after { content:''; position:absolute; top:0; left:15%; right:15%; height:1.5px; background:linear-gradient(90deg,transparent,var(--o),transparent); opacity:0; transition:opacity .35s; }
+    .icard:hover::after { opacity:1; }
+    .icard:hover { background:rgba(232,90,10,.04); border-color:rgba(232,90,10,.18); transform:translateY(-4px); }
+    .iicon { width:56px; height:56px; background:rgba(232,90,10,.1); border-radius:13px; display:flex; align-items:center; justify-content:center; margin:0 auto 16px; }
+    .iicon i { font-size:24px; color:var(--o); }
+    .icard h4 { color:#aaa; font-size:13.5px; font-weight:400; line-height:1.55; }
+
+    /* ── RÉALISATIONS ── */
+    .sec-real { background: var(--blk); }
+    .sec-real h2.sec { color: #fff; }
+    .sec-real .tag { background:rgba(232,90,10,.12); border-color:rgba(232,90,10,.28); color:var(--ol); }
+    .sec-real p.sec-sub { color: #555; }
+    .rgrid { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; }
+
+    .rcard {
+      border-radius: 18px; overflow: hidden;
+      position: relative; cursor: pointer;
+      transform-style: preserve-3d;
+      transform: perspective(900px) rotateX(0deg) rotateY(0deg) scale(1);
+      transition: transform .08s ease, box-shadow .4s ease;
+      box-shadow: 0 8px 32px rgba(0,0,0,.35);
+    }
+    .rcard:hover { box-shadow: 0 28px 72px rgba(0,0,0,.55), 0 0 0 1px rgba(232,90,10,.25); }
+
+    .rimg-wrap { position:relative; height:260px; overflow:hidden; }
+    .rimg-wrap img {
+      width:100%; height:115%; object-fit:cover; object-position:center;
+      display:block;
+      transform: scale(1.05) translateY(0px);
+      transition: transform .08s ease;
+      will-change: transform;
+    }
+
+    /* dark gradient always visible at bottom */
+    .rimg-wrap::after {
+      content:'';
+      position:absolute; inset:0;
+      background: linear-gradient(to top, rgba(0,0,0,.92) 0%, rgba(0,0,0,.45) 45%, rgba(0,0,0,.1) 100%);
+      z-index:1;
+    }
+
+    /* category tag top-left */
+    .rtag {
+      position:absolute; top:14px; left:14px; z-index:3;
+      background:rgba(232,90,10,.9); backdrop-filter:blur(4px);
+      color:#fff; font-size:10px; font-weight:700;
+      padding:4px 12px; border-radius:20px; letter-spacing:.5px; text-transform:uppercase;
+    }
+
+    /* info always visible at bottom */
+    .rinfo {
+      position:absolute; bottom:0; left:0; right:0; z-index:2;
+      padding:20px 20px 22px;
+      transform: translateY(0);
+    }
+    .rinfo h4 { color:#fff; font-size:15px; font-weight:600; letter-spacing:-.2px; margin-bottom:5px; }
+    .rinfo-loc { color:rgba(255,255,255,.45); font-size:12px; font-weight:300; display:flex; align-items:center; gap:5px; }
+    .rinfo-loc i { color:var(--o); font-size:12px; }
+
+    /* extra detail revealed on hover */
+    .rdetail {
+      position:absolute; bottom:0; left:0; right:0; z-index:2;
+      padding:22px 20px;
+      background: linear-gradient(to top, rgba(10,10,10,.98) 0%, rgba(10,10,10,.85) 60%, transparent 100%);
+      transform: translateY(100%);
+      transition: transform .42s cubic-bezier(.25,.46,.45,.94);
+    }
+    .rcard:hover .rdetail { transform: translateY(0); }
+    .rdetail h4 { color:#fff; font-size:15px; font-weight:600; margin-bottom:6px; letter-spacing:-.2px; }
+    .rdetail p { color:rgba(255,255,255,.5); font-size:12.5px; font-weight:300; line-height:1.6; margin-bottom:12px; }
+    .rdetail-loc { color:rgba(255,255,255,.35); font-size:11.5px; display:flex; align-items:center; gap:5px; }
+    .rdetail-loc i { color:var(--o); }
+    .rdetail-btn {
+      display:inline-flex; align-items:center; gap:6px;
+      margin-top:14px; background:var(--o); color:#fff;
+      font-size:11px; font-weight:700; letter-spacing:.4px; text-transform:uppercase;
+      padding:7px 16px; border-radius:6px;
+    }
+
+    /* shine overlay */
+    .rshine {
+      position:absolute; inset:0; z-index:4; border-radius:18px;
+      background: radial-gradient(circle at 50% 50%, rgba(255,255,255,.12) 0%, transparent 65%);
+      opacity:0; transition:opacity .3s; pointer-events:none;
+    }
+    .rcard:hover .rshine { opacity:1; }
+
+    /* ── FORM ── */
+    .sec-form { background:#fff; }
+    .form-wrap { display:grid; grid-template-columns:1fr 1.35fr; gap:80px; align-items:start; }
+    .fi h3 { font-size:36px; font-weight:600; letter-spacing:-1px; line-height:1.12; color:#111; margin-bottom:16px; }
+    .fi > p { color:#999; font-size:14.5px; line-height:1.8; font-weight:300; margin-bottom:32px; }
+    .fci { display:flex; align-items:center; gap:13px; color:#666; font-size:13.5px; margin-bottom:16px; text-decoration:none; transition:color .2s; }
+    .fci:hover { color:var(--o); }
+    .fci-ico { width:42px; height:42px; background:rgba(232,90,10,.07); border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:background .2s; }
+    .fci:hover .fci-ico { background:rgba(232,90,10,.14); }
+    .fci-ico i { font-size:17px; color:var(--o); }
+    .fci-lbl { font-size:10px; color:#ccc; display:block; margin-bottom:1px; text-transform:uppercase; letter-spacing:.8px; font-weight:600; }
+    .fci-val { font-size:13.5px; color:#444; }
+    .fbox { background:var(--gry); border-radius:18px; padding:40px 36px; border:1px solid rgba(0,0,0,.045); }
+    .frow { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; }
+    .fg { margin-bottom:14px; }
+    .fg label { display:block; font-size:10.5px; font-weight:700; color:#777; margin-bottom:7px; letter-spacing:.6px; text-transform:uppercase; }
+    .fg input, .fg select, .fg textarea {
+      width:100%; background:#fff; border:1px solid #e6e6e6; border-radius:9px;
+      padding:12px 14px; font-family:'Outfit',sans-serif; font-size:14px;
+      color:#111; font-weight:400; outline:none;
+      transition:border-color .2s, box-shadow .2s; appearance:none;
+    }
+    .fg input:focus, .fg select:focus, .fg textarea:focus { border-color:var(--o); box-shadow:0 0 0 3px rgba(232,90,10,.09); }
+    .fg input::placeholder, .fg textarea::placeholder { color:#d0d0d0; font-weight:300; }
+    .fg textarea { resize:vertical; min-height:105px; }
+    .fg select { cursor:pointer; color:#777; }
+    .fsub { width:100%; background:var(--o); color:#fff; border:none; border-radius:9px; padding:15px; font-family:'Outfit',sans-serif; font-size:14px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:background .2s, transform .2s, box-shadow .2s; margin-top:6px; letter-spacing:.1px; }
+    .fsub:hover { background:var(--od); transform:translateY(-2px); box-shadow:0 8px 24px rgba(232,90,10,.28); }
+    .fnote { text-align:center; color:#ccc; font-size:11.5px; margin-top:12px; display:flex; align-items:center; justify-content:center; gap:5px; font-weight:300; }
+    .fnote i { color:#d4d4d4; font-size:12px; }
+    #fsuccess { display:none; text-align:center; padding:52px 20px; }
+    .fcheck { width:60px; height:60px; background:rgba(232,90,10,.1); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 18px; }
+    .fcheck i { font-size:26px; color:var(--o); }
+
+    /* ── FOOTER ── */
+    footer {
+      background:#070707; padding:24px var(--pad);
+      display:flex; align-items:center; justify-content:space-between;
+      border-top:1px solid rgba(255,255,255,.04); flex-wrap:wrap; gap:10px;
+    }
+    .foot-l { display:flex; align-items:center; gap:12px; }
+    .foot-l img { height:36px; width:auto; mix-blend-mode:screen; }
+    .foot-name { color:#fff; font-size:14px; font-weight:500; }
+    .foot-name span { color:var(--o); }
+    .foot-sep { color:#2a2a2a; }
+    .foot-sub { color:#2e2e2e; font-size:12px; }
+    footer > p { color:#252525; font-size:12px; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width:1100px) {
+      :root { --pad: 40px; }
+      .hero h1 { font-size:48px; }
+      .hero-right { display:none; }
+      .grid3, .rgrid { grid-template-columns:1fr 1fr; }
+      .grid4 { grid-template-columns:1fr 1fr; }
+      .form-wrap { grid-template-columns:1fr; gap:40px; }
+    }
+    @media (max-width:680px) {
+      :root { --pad: 20px; }
+      nav ul { display:none; }
+      .hero h1 { font-size:34px; letter-spacing:-1px; }
+      .hero-kpis { gap:24px; flex-wrap:wrap; }
+      .kpi-num { font-size:28px; }
+      h2.sec { font-size:30px; }
+      .grid3, .rgrid { grid-template-columns:1fr; }
+      .grid4 { grid-template-columns:1fr 1fr; }
+      .frow { grid-template-columns:1fr; }
+      footer { flex-direction:column; align-items:flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="bar-track"><div id="bar"></div></div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#" class="nav-logo">
+    <img src="logo.png" alt="Ach'Tech"
+         onerror="this.style.display='none';document.querySelector('.nav-logo-fallback').style.display='flex'">
+    <div class="nav-logo-fallback">
+      <div class="nav-logo-icon"><i class="ti ti-flame"></i></div>
+      <span class="nav-logo-txt">Ach<span>'Tech</span></span>
+    </div>
+  </a>
+  <ul>
+    <li><a href="#valeurs">Valeurs</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#realisations">Réalisations</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <a href="#contact" class="nav-cta">Devis gratuit</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-orb1"></div>
+  <div class="hero-orb2"></div>
+
+  <div class="hero-left">
+    <div class="eyebrow"><i class="ti ti-map-pin"></i> Belgique — Wallonie & Bruxelles</div>
+    <h1>Votre artisan<br><span class="hl">chauffage</span> &<br>finitions intérieures</h1>
+    <div class="hero-rule"></div>
+    <p class="hero-sub">Du chauffage à la salle de bain — le patron sur chantier, garantie décennale, devis gratuit sous 24h.</p>
+    <div class="hero-btns">
+      <a href="#contact" class="btn btn-fill"><i class="ti ti-file-invoice"></i> Demander un devis</a>
+      <a href="#realisations" class="btn btn-ghost"><i class="ti ti-photo"></i> Réalisations</a>
+    </div>
+    <div class="hero-kpis">
+      <div><div class="kpi-num">10<em>+</em></div><div class="kpi-lbl">Ans d'expérience</div></div>
+      <div><div class="kpi-num">200<em>+</em></div><div class="kpi-lbl">Chantiers réalisés</div></div>
+      <div><div class="kpi-num">10<em>ans</em></div><div class="kpi-lbl">Garantie décennale</div></div>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="hcard">
+      <div class="hcard-icon"><i class="ti ti-shield-check"></i></div>
+      <div><div class="hcard-label">Protection</div><div class="hcard-val">Garantie décennale</div></div>
+    </div>
+    <div class="hcard">
+      <div class="hcard-icon"><i class="ti ti-user-check"></i></div>
+      <div><div class="hcard-label">Présence</div><div class="hcard-val">Patron sur chantier</div></div>
+    </div>
+    <div class="hcard">
+      <div class="hcard-icon"><i class="ti ti-file-invoice"></i></div>
+      <div><div class="hcard-label">Sans engagement</div><div class="hcard-val">Devis 100% gratuit</div></div>
+    </div>
+    <div class="hcard">
+      <div class="hcard-icon"><i class="ti ti-building"></i></div>
+      <div><div class="hcard-label">Officiel</div><div class="hcard-val">Entreprise déclarée BE</div></div>
+    </div>
+  </div>
+
+  <div class="hero-scroll">
+    <div class="mouse"></div>
+    <span>Défiler</span>
+  </div>
+</section>
+
+<!-- VALEURS -->
+<section id="valeurs" class="sec-values pad">
+  <div class="reveal">
+    <div class="tag"><i class="ti ti-heart"></i> Nos engagements</div>
+    <h2 class="sec">Des valeurs qui font<br>la différence</h2>
+    <p class="sec-sub">Chaque chantier est abordé avec rigueur et honnêteté. Voici les piliers sur lesquels repose notre travail au quotidien.</p>
+  </div>
+  <div class="grid3">
+    <div class="vcard reveal d1">
+      <div class="vcard-n">01</div>
+      <div class="vicon"><i class="ti ti-eye"></i></div>
+      <h3>Transparence</h3>
+      <p>Devis détaillé, prix clairs, aucune mauvaise surprise. Vous savez exactement ce qui est fait et pourquoi, à chaque étape du chantier.</p>
+    </div>
+    <div class="vcard reveal d2">
+      <div class="vcard-n">02</div>
+      <div class="vicon"><i class="ti ti-medal"></i></div>
+      <h3>Qualité</h3>
+      <p>Matériaux sélectionnés avec soin, finitions irréprochables. Nous ne livrons pas un chantier dont nous ne serions pas fiers.</p>
+    </div>
+    <div class="vcard reveal d3">
+      <div class="vcard-n">03</div>
+      <div class="vicon"><i class="ti ti-shield-check"></i></div>
+      <h3>Garantie décennale</h3>
+      <p>Toutes nos installations sont couvertes pendant 10 ans. Vous êtes protégé contre les défauts de construction sans surcoût.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services" class="sec-services pad">
+  <div class="svc-orb"></div>
+  <div class="reveal">
+    <div class="tag"><i class="ti ti-tools"></i> Ce que nous faisons</div>
+    <h2 class="sec">Nos services</h2>
+    <p class="sec-sub">De l'installation de chaudière à la pose de carrelage, nous intervenons sur tous vos projets d'habitat.</p>
+  </div>
+  <div class="grid3">
+    <div class="scard reveal d1">
+      <div class="scard-n">01 — Chauffage</div>
+      <div class="sicon"><i class="ti ti-flame"></i></div>
+      <h3>Chauffage & sanitaires</h3>
+      <p>Installation, remplacement et entretien de vos équipements de chauffage et de plomberie.</p>
+      <div class="ssep"></div>
+      <ul class="slist">
+        <li><i class="ti ti-chevron-right"></i>Chaudières gaz & mazout</li>
+        <li><i class="ti ti-chevron-right"></i>Pompes à chaleur</li>
+        <li><i class="ti ti-chevron-right"></i>Plancher chauffant</li>
+        <li><i class="ti ti-chevron-right"></i>Plomberie & sanitaires</li>
+      </ul>
+    </div>
+    <div class="scard reveal d2">
+      <div class="scard-n">02 — Finitions</div>
+      <div class="sicon"><i class="ti ti-paint"></i></div>
+      <h3>Finitions intérieures</h3>
+      <p>Parachèvement complet de vos espaces de vie pour un résultat soigné et durable.</p>
+      <div class="ssep"></div>
+      <ul class="slist">
+        <li><i class="ti ti-chevron-right"></i>Pose de cloisons & plaques</li>
+        <li><i class="ti ti-chevron-right"></i>Enduits & peinture</li>
+        <li><i class="ti ti-chevron-right"></i>Carrelage & revêtements</li>
+        <li><i class="ti ti-chevron-right"></i>Menuiseries intérieures</li>
+      </ul>
+    </div>
+    <div class="scard reveal d3">
+      <div class="scard-n">03 — Cuisine & SDB</div>
+      <div class="sicon"><i class="ti ti-tools-kitchen-2"></i></div>
+      <h3>Cuisine & salle de bain</h3>
+      <p>Conception et réalisation clé en main de vos espaces cuisine et salle de bain.</p>
+      <div class="ssep"></div>
+      <ul class="slist">
+        <li><i class="ti ti-chevron-right"></i>Aménagement cuisine</li>
+        <li><i class="ti ti-chevron-right"></i>Salle de bain complète</li>
+        <li><i class="ti ti-chevron-right"></i>Douche à l'italienne</li>
+        <li><i class="ti ti-chevron-right"></i>Meuble vasque & robinetterie</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUES -->
+<div class="sec-brands reveal">
+  <div class="brands-hd">
+    <div class="brands-hd-line"></div>
+    <span>Marques partenaires</span>
+    <div class="brands-hd-line"></div>
+  </div>
+  <div class="mq-wrap">
+    <div class="mq-track">
+      <div class="blogo"><img src="https://logo.clearbit.com/viessmann.com" alt="Viessmann" onerror="this.style.display='none';this.nextSibling.style.display='inline'"><span style="display:none">Viessmann</span></div>
+      <div class="blogo"><img src="https://logo.clearbit.com/grohe.com" alt="Grohe" onerror="this.style.display='none';this.nextSibling.style.display='inline'"><span style="display:none">Grohe</span></div>
+      <div class="blogo"><img src="https://logo.clearbit.com/buderus.com" alt="Buderus" onerror="this.style.display='none';this.nextSibling.style.display='inline'"><span style="display:none">Buderus</span></div>
+      <div class="blogo"><img src="https://logo.clearbit.com/vaillant.com" alt="Vaillant" onerror="this.style.display='none';this.nextSibling.style.display='inline'"><span style="display:none">Vaillant</span></div>
+      <div class="blogo"><img src="https://logo.clearbit.com/idealstandard.com" alt="Ideal Standard" onerror="this.style.display='none';this.nextSibling.style.display='inline'"><span style="display:none">Ideal Standard</span></div>
+      <div class="blogo"><img src="https://logo.clearbit.com/porcelanosa.com" alt="Porcelanosa" onerror="this.style.display='none';this.nextSibling.style.display='inline'"><span style="display:none">Porcelanosa</span></div>
+      <div class="blogo"><img src="https://logo.clearbit.com/roca.com" alt="Roca" onerror="this.style.display='none';this.nextSibling.style.display='inline'"><span style="display:none">Roca</span></div>
+      <div class="blogo"><img src="https://logo.clearbit.com/daikin.com" alt="Daikin" onerror="this.style.display='none';this.nextSibling.style.display='inline'"><span style="display:none">Daikin</span></div>
+      <div class="blogo"><img src="https://logo.clearbit.com/atlantic-comfort.com" alt="Atlantic" onerror="this.style.display='none';this.nextSibling.style.display='inline'"><span style="display:none">Atlantic</span></div>
+      <div class="blogo"><img src="https://logo.clearbit.com/dedietrich-thermique.fr" alt="De Dietrich" onerror="this.style.display='none';this.nextSibling.style.display='inline'"><span style="display:none">De Dietrich</span></div>
+      <!-- duplicate pour boucle seamless -->
+      <div class="blogo"><img src="https://logo.clearbit.com/viessmann.com" alt="Viessmann" onerror="this.style.display='none';this.nextSibling.style.display='inline'"><span style="display:none">Viessmann</span></div>
+      <div class="blogo"><img src="https://logo.clearbit.com/grohe.com" alt="Grohe" onerror="this.style.display='none';this.nextSibling.style.display='inline'"><span style="display:none">Grohe</span></div>
+      <div class="blogo"><img src="https://logo.clearbit.com/buderus.com" alt="Buderus" onerror="this.style.display='none';this.nextSibling.style.display='inline'"><span style="display:none">Buderus</span></div>
+      <div class="blogo"><img src="https://logo.clearbit.com/vaillant.com" alt="Vaillant" onerror="this.style.display='none';this.nextSibling.style.display='inline'"><span style="display:none">Vaillant</span></div>
+      <div class="blogo"><img src="https://logo.clearbit.com/idealstandard.com" alt="Ideal Standard" onerror="this.style.display='none';this.nextSibling.style.display='inline'"><span style="display:none">Ideal Standard</span></div>
+      <div class="blogo"><img src="https://logo.clearbit.com/porcelanosa.com" alt="Porcelanosa" onerror="this.style.display='none';this.nextSibling.style.display='inline'"><span style="display:none">Porcelanosa</span></div>
+      <div class="blogo"><img src="https://logo.clearbit.com/roca.com" alt="Roca" onerror="this.style.display='none';this.nextSibling.style.display='inline'"><span style="display:none">Roca</span></div>
+      <div class="blogo"><img src="https://logo.clearbit.com/daikin.com" alt="Daikin" onerror="this.style.display='none';this.nextSibling.style.display='inline'"><span style="display:none">Daikin</span></div>
+      <div class="blogo"><img src="https://logo.clearbit.com/atlantic-comfort.com" alt="Atlantic" onerror="this.style.display='none';this.nextSibling.style.display='inline'"><span style="display:none">Atlantic</span></div>
+      <div class="blogo"><img src="https://logo.clearbit.com/dedietrich-thermique.fr" alt="De Dietrich" onerror="this.style.display='none';this.nextSibling.style.display='inline'"><span style="display:none">De Dietrich</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- GARANTIES -->
+<section class="sec-infos pad">
+  <div class="infos-glow"></div>
+  <div class="reveal tc">
+    <div class="tag" style="display:inline-flex;margin:0 auto 16px"><i class="ti ti-star"></i> Pourquoi nous choisir</div>
+    <h2 class="sec" style="color:#fff;margin-bottom:50px">Les garanties Ach'Tech</h2>
+  </div>
+  <div class="grid4">
+    <div class="icard reveal d1"><div class="iicon"><i class="ti ti-building"></i></div><h4>Entreprise déclarée en Belgique</h4></div>
+    <div class="icard reveal d2"><div class="iicon"><i class="ti ti-file-invoice"></i></div><h4>Devis gratuits sans engagement</h4></div>
+    <div class="icard reveal d3"><div class="iicon"><i class="ti ti-shield-check"></i></div><h4>Garantie décennale sur tous travaux</h4></div>
+    <div class="icard reveal d4"><div class="iicon"><i class="ti ti-user-check"></i></div><h4>Le patron présent sur chaque chantier</h4></div>
+  </div>
+</section>
+
+<!-- RÉALISATIONS -->
+<section id="realisations" class="sec-real pad">
+  <div class="reveal tc">
+    <div class="tag" style="display:inline-flex;margin:0 auto 16px"><i class="ti ti-photo"></i> Portfolio</div>
+    <h2 class="sec">Nos réalisations</h2>
+    <p class="sec-sub">Un aperçu de chantiers récents — chauffage, salles de bain, cuisines et finitions intérieures.</p>
+  </div>
+  <div class="rgrid">
+
+    <div class="rcard reveal d1">
+      <div class="rimg-wrap">
+        <img src="https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=800&q=80&auto=format&fit=crop" alt="Chaudière">
+        <span class="rtag">Chauffage</span>
+        <div class="rinfo">
+          <h4>Chaudière à condensation</h4>
+          <div class="rinfo-loc"><i class="ti ti-map-pin"></i>Liège</div>
+        </div>
+        <div class="rdetail">
+          <h4>Chaudière à condensation</h4>
+          <p>Remplacement complet de l'ancienne installation — nouvelle chaudière gaz haute efficacité, raccordement et mise en service.</p>
+          <div class="rdetail-loc"><i class="ti ti-map-pin"></i>Liège — Maison unifamiliale</div>
+          <div class="rdetail-btn"><i class="ti ti-arrow-right"></i>Voir le projet</div>
+        </div>
+      </div>
+      <div class="rshine"></div>
+    </div>
+
+    <div class="rcard reveal d2">
+      <div class="rimg-wrap">
+        <img src="https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=800&q=80&auto=format&fit=crop" alt="Salle de bain">
+        <span class="rtag">Salle de bain</span>
+        <div class="rinfo">
+          <h4>Salle de bain clé en main</h4>
+          <div class="rinfo-loc"><i class="ti ti-map-pin"></i>Namur</div>
+        </div>
+        <div class="rdetail">
+          <h4>Salle de bain clé en main</h4>
+          <p>Douche à l'italienne, meuble vasque suspendu, robinetterie design — réalisation complète de A à Z.</p>
+          <div class="rdetail-loc"><i class="ti ti-map-pin"></i>Namur — Appartement 85m²</div>
+          <div class="rdetail-btn"><i class="ti ti-arrow-right"></i>Voir le projet</div>
+        </div>
+      </div>
+      <div class="rshine"></div>
+    </div>
+
+    <div class="rcard reveal d3">
+      <div class="rimg-wrap">
+        <img src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&q=80&auto=format&fit=crop" alt="Cuisine">
+        <span class="rtag">Cuisine</span>
+        <div class="rinfo">
+          <h4>Cuisine avec ilot central</h4>
+          <div class="rinfo-loc"><i class="ti ti-map-pin"></i>Bruxelles</div>
+        </div>
+        <div class="rdetail">
+          <h4>Cuisine avec ilot central</h4>
+          <p>Aménagement complet, plomberie encastrée, évier et robinetterie intégrés dans l'ilot. Finitions haut de gamme.</p>
+          <div class="rdetail-loc"><i class="ti ti-map-pin"></i>Bruxelles — Maison de ville</div>
+          <div class="rdetail-btn"><i class="ti ti-arrow-right"></i>Voir le projet</div>
+        </div>
+      </div>
+      <div class="rshine"></div>
+    </div>
+
+    <div class="rcard reveal d1">
+      <div class="rimg-wrap">
+        <img src="https://images.unsplash.com/photo-1562259929-b4e1fd3aef09?w=800&q=80&auto=format&fit=crop" alt="Finitions intérieures">
+        <span class="rtag">Finitions</span>
+        <div class="rinfo">
+          <h4>Parachèvement appartement neuf</h4>
+          <div class="rinfo-loc"><i class="ti ti-map-pin"></i>Charleroi</div>
+        </div>
+        <div class="rdetail">
+          <h4>Parachèvement appartement neuf</h4>
+          <p>Enduits, peintures, pose de carrelage et parquet — livraison clé en main dans les délais.</p>
+          <div class="rdetail-loc"><i class="ti ti-map-pin"></i>Charleroi — Appartement 110m²</div>
+          <div class="rdetail-btn"><i class="ti ti-arrow-right"></i>Voir le projet</div>
+        </div>
+      </div>
+      <div class="rshine"></div>
+    </div>
+
+    <div class="rcard reveal d2">
+      <div class="rimg-wrap">
+        <img src="https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=800&q=80&auto=format&fit=crop" alt="Pompe à chaleur">
+        <span class="rtag">Chauffage</span>
+        <div class="rinfo">
+          <h4>Pompe à chaleur air/eau</h4>
+          <div class="rinfo-loc"><i class="ti ti-map-pin"></i>Mons</div>
+        </div>
+        <div class="rdetail">
+          <h4>Pompe à chaleur air/eau</h4>
+          <p>Installation complète d'une PAC air/eau couplée au plancher chauffant existant. Économies d'énergie jusqu'à 60%.</p>
+          <div class="rdetail-loc"><i class="ti ti-map-pin"></i>Mons — Villa 4 chambres</div>
+          <div class="rdetail-btn"><i class="ti ti-arrow-right"></i>Voir le projet</div>
+        </div>
+      </div>
+      <div class="rshine"></div>
+    </div>
+
+    <div class="rcard reveal d3">
+      <div class="rimg-wrap">
+        <img src="https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=800&q=80&auto=format&fit=crop" alt="Plomberie">
+        <span class="rtag">Sanitaires</span>
+        <div class="rinfo">
+          <h4>Rénovation plomberie complète</h4>
+          <div class="rinfo-loc"><i class="ti ti-map-pin"></i>Louvain</div>
+        </div>
+        <div class="rdetail">
+          <h4>Rénovation plomberie complète</h4>
+          <p>Remplacement intégral des canalisations, installation de nouveaux équipements sanitaires dans une maison 4 chambres.</p>
+          <div class="rdetail-loc"><i class="ti ti-map-pin"></i>Louvain — Maison 4 chambres</div>
+          <div class="rdetail-btn"><i class="ti ti-arrow-right"></i>Voir le projet</div>
+        </div>
+      </div>
+      <div class="rshine"></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- FORMULAIRE -->
+<section id="contact" class="sec-form pad">
+  <div class="form-wrap">
+    <div class="reveal">
+      <div class="tag"><i class="ti ti-message"></i> Contact</div>
+      <div class="fi">
+        <h3>Demandez<br>votre devis<br>gratuit</h3>
+        <p>Réponse sous 24h. Nous venons évaluer vos besoins directement sur place, sans engagement.</p>
+        <a href="tel:+3204XXXXXXXX" class="fci">
+          <div class="fci-ico"><i class="ti ti-phone"></i></div>
+          <div><span class="fci-lbl">Téléphone</span><span class="fci-val">+32 (0)4 XX XX XX XX</span></div>
+        </a>
+        <a href="mailto:contact@achtech.be" class="fci">
+          <div class="fci-ico"><i class="ti ti-mail"></i></div>
+          <div><span class="fci-lbl">Email</span><span class="fci-val">contact@achtech.be</span></div>
+        </a>
+        <div class="fci">
+          <div class="fci-ico"><i class="ti ti-map-pin"></i></div>
+          <div><span class="fci-lbl">Zone d'intervention</span><span class="fci-val">Wallonie & Bruxelles</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="fbox reveal d1">
+      <form id="fform" onsubmit="submitForm(event)">
+        <div class="frow">
+          <div class="fg"><label>Prénom</label><input type="text" placeholder="Jean" required></div>
+          <div class="fg"><label>Nom</label><input type="text" placeholder="Dupont" required></div>
+        </div>
+        <div class="frow">
+          <div class="fg"><label>Téléphone</label><input type="tel" placeholder="+32 4XX XX XX XX" required></div>
+          <div class="fg"><label>Email</label><input type="email" placeholder="jean@email.com" required></div>
+        </div>
+        <div class="fg">
+          <label>Type de travaux</label>
+          <select required>
+            <option value="" disabled selected>Sélectionnez un service</option>
+            <option>Chauffage & sanitaires</option>
+            <option>Finitions intérieures</option>
+            <option>Cuisine</option>
+            <option>Salle de bain</option>
+            <option>Plusieurs services</option>
+          </select>
+        </div>
+        <div class="fg"><label>Localité</label><input type="text" placeholder="Liège, Namur, Bruxelles..."></div>
+        <div class="fg"><label>Description du projet</label><textarea placeholder="Décrivez brièvement votre projet — superficie, état actuel, délai souhaité..."></textarea></div>
+        <button type="submit" class="fsub"><i class="ti ti-send"></i> Envoyer ma demande de devis</button>
+        <div class="fnote"><i class="ti ti-lock"></i> Données confidentielles — aucun spam.</div>
+      </form>
+      <div id="fsuccess">
+        <div class="fcheck"><i class="ti ti-check"></i></div>
+        <h4 style="font-size:19px;font-weight:600;margin-bottom:8px">Demande envoyée !</h4>
+        <p style="color:#999;font-size:13.5px;line-height:1.7;font-weight:300">Nous vous recontactons dans les 24h pour organiser une visite sur place.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="foot-l">
+    <img src="logo.png" alt="Ach'Tech"
+         onerror="this.style.display='none';document.querySelector('.foot-name').style.display='block'">
+    <span class="foot-name" style="display:none">Ach<span>'Tech</span></span>
+    <span class="foot-sep">—</span>
+    <span class="foot-sub">Entreprise déclarée en Belgique</span>
+  </div>
+  <p>© 2025 · Chauffage · Sanitaires · Finitions intérieures</p>
+</footer>
+
+<script>
+  /* ── PROGRESS BAR + NAV ── */
+  const bar = document.getElementById('bar');
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    const s = window.scrollY;
+    const h = document.documentElement.scrollHeight - window.innerHeight;
+    bar.style.width = (h > 0 ? (s / h) * 100 : 0) + '%';
+    nav.classList.toggle('stuck', s > 60);
+  }, { passive: true });
+
+  /* ── SCROLL REVEAL ── */
+  const obs = new IntersectionObserver(es => {
+    es.forEach(e => { if (e.isIntersecting) e.target.classList.add('on'); });
+  }, { threshold: 0.1, rootMargin: '0px 0px -36px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+  /* ── 3D TILT + PARALLAX + SHINE ── */
+  document.querySelectorAll('.rcard').forEach(card => {
+    const img   = card.querySelector('.rimg-wrap img');
+    const shine = card.querySelector('.rshine');
+
+    card.addEventListener('mousemove', e => {
+      const r  = card.getBoundingClientRect();
+      const x  = e.clientX - r.left;
+      const y  = e.clientY - r.top;
+      const cx = r.width  / 2;
+      const cy = r.height / 2;
+      const dx = (x - cx) / cx;   // -1 → +1
+      const dy = (y - cy) / cy;   // -1 → +1
+
+      const rotX =  dy * -10;   // tilt vertical
+      const rotY =  dx *  12;   // tilt horizontal
+
+      card.style.transform =
+        `perspective(900px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale(1.03)`;
+
+      /* parallax image in opposite direction */
+      if (img) img.style.transform =
+        `scale(1.1) translateX(${dx * -8}px) translateY(${dy * -8}px)`;
+
+      /* shine follows cursor */
+      if (shine) {
+        const pctX = (x / r.width)  * 100;
+        const pctY = (y / r.height) * 100;
+        shine.style.background =
+          `radial-gradient(circle at ${pctX}% ${pctY}%, rgba(255,255,255,.18) 0%, transparent 60%)`;
+        shine.style.opacity = '1';
+      }
+    });
+
+    card.addEventListener('mouseleave', () => {
+      card.style.transform =
+        'perspective(900px) rotateX(0deg) rotateY(0deg) scale(1)';
+      if (img) img.style.transform = 'scale(1.05) translateX(0) translateY(0)';
+      if (shine) shine.style.opacity = '0';
+    });
+  });
+
+  /* ── FORMULAIRE ── */
+  function submitForm(e) {
+    e.preventDefault();
+    document.getElementById('fform').style.display = 'none';
+    document.getElementById('fsuccess').style.display = 'block';
+  }
+</script>
+</body>
+</html>

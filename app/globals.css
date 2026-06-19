@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --orange: #E85A0A;
+  --orange-dark: #C04500;
+  --orange-light: #FF7A35;
+}
+
+html { scroll-behavior: smooth; }
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: #0a0a0a; }
+::-webkit-scrollbar-thumb { background: var(--orange); border-radius: 4px; }
+
+@layer utilities {
+  .glass {
+    @apply bg-white/5 border border-white/10 backdrop-blur-md;
+  }
+  .glass-light {
+    @apply bg-white/80 border border-white/60 backdrop-blur-md;
+  }
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, #fff 30%, rgba(255,255,255,.55) 100%);
+  }
+  .orange-gradient {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, var(--orange-light), var(--orange));
+  }
+}
+
+/* Form field base */
+.field {
+  @apply w-full bg-white border border-[#e6e6e6] rounded-xl px-4 py-3 text-sm text-[#111] font-normal outline-none transition-all duration-200;
+}
+.field:focus {
+  @apply border-orange;
+  box-shadow: 0 0 0 3px rgba(232,90,10,.09);
+}
+.field::placeholder { @apply text-[#d0d0d0] font-light; }
+.field option { color: #111; }
+
+/* marquee mask */
+.marquee-mask {
+  -webkit-mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
+  mask-image:         linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
+}
