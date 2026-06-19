@@ -1,17 +1,19 @@
-// Désactive la génération statique — nécessaire car le site utilise
-// Framer Motion et des composants 100% client-side
-export const dynamic = 'force-dynamic'
+import dynamic from 'next/dynamic'
+import Navbar      from '@/components/Navbar'
+import Footer      from '@/components/Footer'
+import ProgressBar from '@/components/ProgressBar'
 
-import Navbar        from '@/components/Navbar'
-import Hero          from '@/components/Hero'
-import Values        from '@/components/Values'
-import Services      from '@/components/Services'
-import Brands        from '@/components/Brands'
-import Guarantees    from '@/components/Guarantees'
-import Realizations  from '@/components/Realizations'
-import ContactForm   from '@/components/ContactForm'
-import Footer        from '@/components/Footer'
-import ProgressBar   from '@/components/ProgressBar'
+// Sections légères — rendues côté serveur (rapide, bon pour Google)
+import Values     from '@/components/Values'
+import Brands     from '@/components/Brands'
+import Guarantees from '@/components/Guarantees'
+import ContactForm from '@/components/ContactForm'
+
+// Sections lourdes (Framer Motion 3D) — chargées côté navigateur uniquement
+// Évite le timeout de build et améliore la vitesse
+const Hero         = dynamic(() => import('@/components/Hero'),         { ssr: false })
+const Services     = dynamic(() => import('@/components/Services'),     { ssr: false })
+const Realizations = dynamic(() => import('@/components/Realizations'), { ssr: false })
 
 export default function Home() {
   return (
