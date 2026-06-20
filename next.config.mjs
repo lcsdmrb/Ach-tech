@@ -23,6 +23,9 @@ const securityHeaders = [
 ]
 
 const nextConfig = {
+  // Standalone output pour déploiement Hostinger (self-contained)
+  output: 'standalone',
+
   // Compression activée
   compress: true,
 
