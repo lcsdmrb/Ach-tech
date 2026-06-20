@@ -13,45 +13,43 @@ const config: Config = {
       },
       colors: {
         orange: {
-          DEFAULT: '#E85A0A',
-          dark:    '#C04500',
-          light:   '#FF7A35',
+          DEFAULT: '#FF6B1A',
+          dark:    '#D95500',
+          light:   '#FF8C47',
+          faint:   'rgba(255,107,26,0.08)',
         },
       },
-      backgroundImage: {
-        'glass': 'linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%)',
-      },
       boxShadow: {
-        'glass': '0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)',
-        'card':  '0 4px 24px rgba(0,0,0,0.25), 0 1px 4px rgba(0,0,0,0.15)',
-        'orange':'0 8px 32px rgba(232,90,10,0.35)',
+        'glass':  '0 8px 32px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.07)',
+        'glass-light': '0 4px 24px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.9)',
+        'orange': '0 8px 28px rgba(255,107,26,0.35)',
+        'card':   '0 2px 16px rgba(0,0,0,0.08)',
       },
       keyframes: {
         blob: {
           '0%,100%': { transform: 'translate(0,0) scale(1)' },
-          '33%':     { transform: 'translate(30px,-20px) scale(1.05)' },
-          '66%':     { transform: 'translate(-20px,15px) scale(0.97)' },
+          '33%':     { transform: 'translate(28px,-18px) scale(1.04)' },
+          '66%':     { transform: 'translate(-18px,14px) scale(0.97)' },
         },
         marquee: {
           from: { transform: 'translateX(0)' },
           to:   { transform: 'translateX(-50%)' },
         },
-        fadeUp: {
-          from: { opacity: '0', transform: 'translateY(24px)' },
-          to:   { opacity: '1', transform: 'translateY(0)' },
+        float: {
+          '0%,100%': { transform: 'translateY(0px)' },
+          '50%':     { transform: 'translateY(-10px)' },
         },
-        shimmer: {
-          '0%':   { backgroundPosition: '-200% center' },
-          '100%': { backgroundPosition:  '200% center' },
+        'spin-slow': {
+          to: { transform: 'rotate(360deg)' },
         },
       },
       animation: {
-        'blob-slow':   'blob 12s ease-in-out infinite',
-        'blob-slower': 'blob 16s ease-in-out infinite 3s',
-        'blob-slowest':'blob 20s ease-in-out infinite 6s',
-        'marquee':     'marquee 30s linear infinite',
-        'fade-up':     'fadeUp .6s ease-out both',
-        'shimmer':     'shimmer 3s linear infinite',
+        'blob-1':    'blob 14s ease-in-out infinite',
+        'blob-2':    'blob 18s ease-in-out infinite 3s',
+        'blob-3':    'blob 22s ease-in-out infinite 6s',
+        'marquee':   'marquee 32s linear infinite',
+        'float':     'float 4s ease-in-out infinite',
+        'spin-slow': 'spin-slow 20s linear infinite',
       },
     },
   },

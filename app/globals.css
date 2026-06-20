@@ -3,47 +3,53 @@
 @tailwind utilities;
 
 :root {
-  --orange: #E85A0A;
-  --orange-dark: #C04500;
-  --orange-light: #FF7A35;
+  --orange:       #FF6B1A;
+  --orange-dark:  #D95500;
+  --orange-light: #FF8C47;
 }
 
 html { scroll-behavior: smooth; }
 
+/* Scrollbar */
 ::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: #0a0a0a; }
+::-webkit-scrollbar-track { background: #080808; }
 ::-webkit-scrollbar-thumb { background: var(--orange); border-radius: 4px; }
 
+/* Sélection de texte */
+::selection { background: rgba(255,107,26,.25); color: #fff; }
+
 @layer utilities {
-  .glass {
-    @apply bg-white/5 border border-white/10 backdrop-blur-md;
+  /* Glass sombre */
+  .glass-dark {
+    @apply bg-white/[0.05] border border-white/10 backdrop-blur-md;
   }
+  /* Glass clair */
   .glass-light {
-    @apply bg-white/80 border border-white/60 backdrop-blur-md;
+    @apply bg-white/80 border border-black/[0.06] backdrop-blur-sm;
   }
-  .text-gradient {
-    @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(135deg, #fff 30%, rgba(255,255,255,.55) 100%);
-  }
-  .orange-gradient {
-    @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(135deg, var(--orange-light), var(--orange));
+  /* Tag pill orange */
+  .tag-orange {
+    @apply inline-flex items-center gap-1.5
+           text-[10px] font-bold tracking-[1.3px] uppercase
+           text-orange border border-orange/25 bg-orange/8
+           px-3.5 py-1 rounded-full;
   }
 }
 
-/* Form field base */
+/* Formulaire — champ de base */
 .field {
-  @apply w-full bg-white border border-[#e6e6e6] rounded-xl px-4 py-3 text-sm text-[#111] font-normal outline-none transition-all duration-200;
+  @apply w-full bg-white border border-[#e5e5e5] rounded-xl
+         px-4 py-3 text-sm text-[#111] font-normal outline-none
+         transition-all duration-200;
 }
 .field:focus {
   @apply border-orange;
-  box-shadow: 0 0 0 3px rgba(232,90,10,.09);
+  box-shadow: 0 0 0 3px rgba(255,107,26,.1);
 }
-.field::placeholder { @apply text-[#d0d0d0] font-light; }
-.field option { color: #111; }
+.field::placeholder { @apply text-[#ccc] font-light; }
 
-/* marquee mask */
-.marquee-mask {
+/* Marquee mask */
+.mq-mask {
   -webkit-mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
-  mask-image:         linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
+          mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
 }

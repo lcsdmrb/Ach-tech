@@ -2,7 +2,15 @@
   "permissions": {
     "allow": [
       "mcp__visualize__show_widget",
-      "mcp__visualize__read_me"
+      "mcp__visualize__read_me",
+      "Skill(update-config)",
+      "Skill(update-config:*)",
+      "Bash(gh api *)",
+      "WebFetch(domain:api.github.com)",
+      "PowerShell(claude mcp add magic --scope user --env API_KEY=\"28389568477b981147ac00c2a601f6866ba07a4252bb4f0b01d2ee8982c50c6c\" -- npx -y @21st-dev/magic@latest)",
+      "Bash(python3 -c ' *)",
+      "PowerShell($j = Get-Content \"C:\\\\Users\\\\demie\\\\.claude.json\" | ConvertFrom-Json; $j.PSObject.Properties.Name | Where-Object { $_ -match \"mcp|server\" })",
+      "Bash(npx tsc *)"
     ]
   }
 }

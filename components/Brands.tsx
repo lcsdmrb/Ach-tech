@@ -1,35 +1,31 @@
 'use client'
 import { motion } from 'framer-motion'
-import Image from 'next/image'
 
+/* TODO: remplacer les noms par de vrais logos SVG dans /public/brands/ */
 const brands = [
-  { name: 'Viessmann',      domain: 'viessmann.com' },
-  { name: 'Grohe',          domain: 'grohe.com' },
-  { name: 'Buderus',        domain: 'buderus.com' },
-  { name: 'Vaillant',       domain: 'vaillant.com' },
-  { name: 'Ideal Standard', domain: 'idealstandard.com' },
-  { name: 'Porcelanosa',    domain: 'porcelanosa.com' },
-  { name: 'Roca',           domain: 'roca.com' },
-  { name: 'Daikin',         domain: 'daikin.com' },
-  { name: 'Atlantic',       domain: 'atlantic-comfort.com' },
-  { name: 'De Dietrich',    domain: 'dedietrich-thermique.fr' },
+  { name: 'Viessmann',      icon: '🔥' },
+  { name: 'Grohe',          icon: '💧' },
+  { name: 'Buderus',        icon: '♨️' },
+  { name: 'Vaillant',       icon: '🏠' },
+  { name: 'Ideal Standard', icon: '🚿' },
+  { name: 'Porcelanosa',    icon: '⬜' },
+  { name: 'Roca',           icon: '🛁' },
+  { name: 'Daikin',         icon: '❄️' },
+  { name: 'Atlantic',       icon: '💨' },
+  { name: 'De Dietrich',    icon: '🌿' },
 ]
 
-function BrandItem({ b }: { b: typeof brands[0] }) {
+function BrandPill({ b }: { b: typeof brands[0] }) {
   return (
-    <div className="flex items-center gap-3 px-7 py-3.5 mx-2 border border-[#e8e8e8] rounded-xl bg-[#fafafa] hover:border-orange/25 hover:bg-white hover:shadow-card transition-all duration-200 cursor-default flex-shrink-0 group">
-      <div className="relative w-24 h-7 flex items-center justify-center">
-        <Image
-          src={`https://logo.clearbit.com/${b.domain}`}
-          alt={b.name}
-          fill
-          className="object-contain grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300"
-          /* TODO: replace with local logo files in /public/brands/ for production */
-          onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
-          sizes="96px"
-        />
-      </div>
-      <span className="text-[13px] font-semibold text-[#aaa] group-hover:text-[#555] transition-colors duration-200 whitespace-nowrap">{b.name}</span>
+    <div className="flex items-center gap-3 px-6 py-3.5 mx-2.5
+                    border border-[#eaeaea] rounded-xl bg-white/90
+                    hover:border-orange/25 hover:shadow-card
+                    transition-all duration-250 cursor-default flex-shrink-0 group">
+      <span className="text-xl">{b.icon}</span>
+      <span className="text-[13.5px] font-semibold text-[#555]
+                       group-hover:text-[#222] transition-colors duration-200 whitespace-nowrap">
+        {b.name}
+      </span>
     </div>
   )
 }
@@ -43,22 +39,22 @@ export default function Brands() {
       whileInView={{ opacity: 1 }}
       viewport={{ once: true }}
       transition={{ duration: 0.6 }}
-      className="bg-white border-y border-[#f0eeec] overflow-hidden py-0"
+      className="bg-[#F7F6F4] border-y border-[#ebebeb] overflow-hidden"
     >
       {/* Header */}
-      <div className="flex items-center gap-5 px-20 pt-9 pb-5">
-        <div className="flex-1 h-px bg-[#ececec] max-w-[180px]" />
-        <span className="text-[10px] font-600 tracking-[2px] uppercase text-[#ccc] whitespace-nowrap">Marques partenaires</span>
-        <div className="flex-1 h-px bg-[#ececec] max-w-[180px]" />
+      <div className="flex items-center gap-5 px-6 md:px-20 pt-10 pb-5">
+        <div className="flex-1 h-px bg-[#e5e5e5] max-w-[200px]" />
+        <span className="text-[10px] font-bold tracking-[2.5px] uppercase text-[#bbb] whitespace-nowrap">
+          Marques partenaires
+        </span>
+        <div className="flex-1 h-px bg-[#e5e5e5] max-w-[200px]" />
       </div>
 
       {/* Marquee */}
-      <div className="marquee-mask pb-9">
-        <div
-          className="flex w-max animate-marquee hover:[animation-play-state:paused]"
-        >
+      <div className="mq-mask pb-10">
+        <div className="flex w-max animate-marquee hover:[animation-play-state:paused]">
           {doubled.map((b, i) => (
-            <BrandItem key={`${b.name}-${i}`} b={b} />
+            <BrandPill key={`${b.name}-${i}`} b={b} />
           ))}
         </div>
       </div>
