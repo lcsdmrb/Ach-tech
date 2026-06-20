@@ -10,45 +10,43 @@
 
 html { scroll-behavior: smooth; }
 
-/* Scrollbar */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: #080808; }
 ::-webkit-scrollbar-thumb { background: var(--orange); border-radius: 4px; }
 
-/* Sélection de texte */
 ::selection { background: rgba(255,107,26,.25); color: #fff; }
 
 @layer utilities {
-  /* Glass sombre */
   .glass-dark {
-    @apply bg-white/[0.05] border border-white/10 backdrop-blur-md;
+    @apply bg-white/5 border border-white/10 backdrop-blur-md;
   }
-  /* Glass clair */
   .glass-light {
-    @apply bg-white/80 border border-black/[0.06] backdrop-blur-sm;
+    @apply bg-white/80 border border-black/5 backdrop-blur-sm;
   }
-  /* Tag pill orange */
+  /* Tag orange — valeurs d'opacité standards uniquement dans @apply */
   .tag-orange {
     @apply inline-flex items-center gap-1.5
            text-[10px] font-bold tracking-[1.3px] uppercase
-           text-orange border border-orange/25 bg-orange/8
            px-3.5 py-1 rounded-full;
+    color: var(--orange);
+    border: 1px solid rgba(255,107,26,0.25);
+    background: rgba(255,107,26,0.08);
   }
 }
 
-/* Formulaire — champ de base */
+/* Champ formulaire */
 .field {
   @apply w-full bg-white border border-[#e5e5e5] rounded-xl
          px-4 py-3 text-sm text-[#111] font-normal outline-none
          transition-all duration-200;
 }
 .field:focus {
-  @apply border-orange;
-  box-shadow: 0 0 0 3px rgba(255,107,26,.1);
+  border-color: var(--orange);
+  box-shadow: 0 0 0 3px rgba(255,107,26,0.1);
 }
 .field::placeholder { @apply text-[#ccc] font-light; }
 
-/* Marquee mask */
+/* Masque dégradé pour le marquee */
 .mq-mask {
   -webkit-mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
           mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
