@@ -57,8 +57,8 @@ const securityHeaders = [
 ]
 
 const nextConfig = {
-  // 'standalone' pour Docker/VPS — retiré pour Vercel (géré automatiquement)
-  // output: 'standalone',
+  // Standalone output — requis pour Hostinger Node.js (self-contained)
+  output: 'standalone',
 
   // Compression activée
   compress: true,
