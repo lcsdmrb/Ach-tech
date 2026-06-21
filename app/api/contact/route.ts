@@ -32,6 +32,26 @@ function sanitize(value: unknown): string {
     })
 }
 
+// ── Vérification CSRF via Origin/Referer ────────────────────────────────────
+function isValidOrigin(req: NextRequest): boolean {
+  const allowedOrigins = [
+    process.env.NEXT_PUBLIC_SITE_URL,
+    'https://ach-tech.com',
+    'https://www.ach-tech.com',
+    // dev uniquement
+    ...(process.env.NODE_ENV === 'development'
+      ? ['http://localhost:3000', 'http://localhost:3001']
+      : []),
+  ].filter(Boolean) as string[]
+
+  const origin  = req.headers.get('origin')
+  const referer = req.headers.get('referer')
+
+  if (origin)  return allowedOrigins.some(o => origin.startsWith(o))
+  if (referer) return allowedOrigins.some(o => referer.startsWith(o))
+  return false // ni origin ni referer = requête suspecte
+}
+
 // ── Route POST /api/contact ──────────────────────────────────────────────────
 export async function POST(req: NextRequest) {
   // 1. Récupérer l'IP du visiteur
@@ -39,6 +59,11 @@ export async function POST(req: NextRequest) {
     req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
     req.headers.get('x-real-ip') ??
     '0.0.0.0'
+
+  // 1b. Vérification CSRF
+  if (!isValidOrigin(req)) {
+    return NextResponse.json({ error: 'Origine non autorisée.' }, { status: 403 })
+  }
 
   // 2. Vérifier le rate limit
   if (isRateLimited(ip)) {

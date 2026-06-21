@@ -1,37 +1,25 @@
-'use client'
+﻿'use client'
 import { motion } from 'framer-motion'
+import { partenaires } from '@/data/partenaires'
 
-/* TODO: remplacer les noms par de vrais logos SVG dans /public/brands/ */
-const brands = [
-  { name: 'Viessmann',      icon: '🔥' },
-  { name: 'Grohe',          icon: '💧' },
-  { name: 'Buderus',        icon: '♨️' },
-  { name: 'Vaillant',       icon: '🏠' },
-  { name: 'Ideal Standard', icon: '🚿' },
-  { name: 'Porcelanosa',    icon: '⬜' },
-  { name: 'Roca',           icon: '🛁' },
-  { name: 'Daikin',         icon: '❄️' },
-  { name: 'Atlantic',       icon: '💨' },
-  { name: 'De Dietrich',    icon: '🌿' },
-]
-
-function BrandPill({ b }: { b: typeof brands[0] }) {
+function BrandPill({ name }: { name: string }) {
   return (
-    <div className="flex items-center gap-3 px-6 py-3.5 mx-2.5
-                    border border-[#eaeaea] rounded-xl bg-white/90
-                    hover:border-orange/25 hover:shadow-card
-                    transition-all duration-250 cursor-default flex-shrink-0 group">
-      <span className="text-xl">{b.icon}</span>
-      <span className="text-[13.5px] font-semibold text-[#555]
-                       group-hover:text-[#222] transition-colors duration-200 whitespace-nowrap">
-        {b.name}
+    <div className="flex items-center gap-3 px-7 py-3.5 mx-3
+                    border border-white/8 rounded-xl bg-white/[0.03]
+                    hover:border-orange/25 hover:bg-white/[0.06]
+                    transition-all duration-200 cursor-default flex-shrink-0 group">
+      {/* TODO: remplacer par <img src={`/brands/${slug}.svg`} /> quand logos dispo */}
+      <div className="w-1.5 h-1.5 rounded-full bg-orange/40 group-hover:bg-orange transition-colors duration-200" />
+      <span className="text-[13px] font-semibold text-white/35
+                       group-hover:text-white/70 transition-colors duration-200 whitespace-nowrap">
+        {name}
       </span>
     </div>
   )
 }
 
 export default function Brands() {
-  const doubled = [...brands, ...brands]
+  const doubled = [...partenaires, ...partenaires]
 
   return (
     <motion.div
@@ -39,25 +27,25 @@ export default function Brands() {
       whileInView={{ opacity: 1 }}
       viewport={{ once: true }}
       transition={{ duration: 0.6 }}
-      className="bg-[#F7F6F4] border-y border-[#ebebeb] overflow-hidden"
+      className="bg-[#0A0A0A] border-y overflow-hidden"
+      style={{ borderColor: 'rgba(255,255,255,0.04)' }}
     >
-      {/* Header */}
       <div className="flex items-center gap-5 px-6 md:px-20 pt-10 pb-5">
-        <div className="flex-1 h-px bg-[#e5e5e5] max-w-[200px]" />
-        <span className="text-[10px] font-bold tracking-[2.5px] uppercase text-[#bbb] whitespace-nowrap">
+        <div className="flex-1 h-px max-w-[120px]" style={{ background: 'rgba(255,255,255,0.06)' }} />
+        <span className="text-[9.5px] font-bold tracking-[2.5px] uppercase text-white/20 whitespace-nowrap">
           Marques partenaires
         </span>
-        <div className="flex-1 h-px bg-[#e5e5e5] max-w-[200px]" />
+        <div className="flex-1 h-px max-w-[120px]" style={{ background: 'rgba(255,255,255,0.06)' }} />
       </div>
 
-      {/* Marquee */}
       <div className="mq-mask pb-10">
         <div className="flex w-max animate-marquee hover:[animation-play-state:paused]">
           {doubled.map((b, i) => (
-            <BrandPill key={`${b.name}-${i}`} b={b} />
+            <BrandPill key={`${b.name}-${i}`} name={b.name} />
           ))}
         </div>
       </div>
     </motion.div>
   )
 }
+

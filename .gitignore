@@ -18,5 +18,21 @@ npm-debug.log*
 .DS_Store
 Thumbs.db
 
+# Fichiers temporaires et images sources brutes à la racine
+*.png
+*.jpg
+*.jpeg
+!public/**/*.png
+!public/**/*.jpg
+!public/**/*.jpeg
+téléchargement.png
+
+# Scripts d'optimisation (garde le fichier mais pas les backups)
+scripts/*.bak
+public/**/*.bak
+
+# Build artifacts
+tsconfig.tsbuildinfo
+
 # Lock file (keep package-lock.json for reproducibility)
 # package-lock.json
