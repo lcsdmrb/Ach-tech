@@ -5,11 +5,11 @@ export const realisations = [
     title: 'Chaudière à condensation',
     desc: 'Remplacement complet — nouvelle chaudière gaz haute efficacité, raccordement et mise en service.',
     detail: 'Maison unifamiliale',
-    cover: '/realisations/chaudiere.jpg',
+    cover: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80',
     images: [
-      '/realisations/chaudiere.jpg',
-      '/realisations/chaufferie.jpg',
       'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&q=85',
+      'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=1200&q=85',
+      'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=1200&q=85',
     ],
   },
   {
@@ -18,9 +18,8 @@ export const realisations = [
     title: 'Salle de bain clé en main',
     desc: "Douche à l'italienne, meuble vasque suspendu, robinetterie design — réalisation de A à Z.",
     detail: 'Appartement 85 m²',
-    cover: '/realisations/sdb-marbre.jpg',
+    cover: 'https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=600&q=80',
     images: [
-      '/realisations/sdb-marbre.jpg',
       'https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=1200&q=85',
       'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=1200&q=85',
       'https://images.unsplash.com/photo-1507652313519-d4e9174996dd?w=1200&q=85',
@@ -36,7 +35,7 @@ export const realisations = [
     images: [
       '/hero/pexels-artbovich-6970052.jpg',
       '/hero/pexels-artbovich-6970056.jpg',
-      '/realisations/couloir.jpg',
+      'https://images.unsplash.com/photo-1556909195-4d44b9e61584?w=1200&q=85',
     ],
   },
   {
@@ -45,11 +44,11 @@ export const realisations = [
     title: 'Parachèvement appartement',
     desc: 'Enduits, peintures, pose de carrelage et parquet — livraison clé en main dans les délais.',
     detail: 'Appartement 110 m²',
-    cover: '/realisations/renovation.jpg',
+    cover: '/hero/pexels-artbovich-6970056.jpg',
     images: [
-      '/realisations/renovation.jpg',
-      '/realisations/parquet.jpg',
-      '/realisations/finitions-bois.jpg',
+      '/hero/pexels-artbovich-6970056.jpg',
+      '/hero/pexels-artbovich-6970052.jpg',
+      'https://images.unsplash.com/photo-1562182090-1c0f2cc8a1d1?w=1200&q=85',
     ],
   },
   {
@@ -58,11 +57,11 @@ export const realisations = [
     title: 'Pompe à chaleur air/eau',
     desc: "Installation d'une PAC air/eau couplée au plancher chauffant. Économies jusqu'à 60 %.",
     detail: 'Villa 4 chambres',
-    cover: '/realisations/finitions-bois.jpg',
+    cover: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=600&q=80',
     images: [
-      '/realisations/finitions-bois.jpg',
+      'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=1200&q=85',
       'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&q=85',
-      '/realisations/couloir.jpg',
+      'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=1200&q=85',
     ],
   },
   {
@@ -71,11 +70,11 @@ export const realisations = [
     title: 'Rénovation plomberie complète',
     desc: 'Remplacement intégral des canalisations, installation de nouveaux équipements sanitaires.',
     detail: 'Maison 4 chambres',
-    cover: '/realisations/parquet.jpg',
+    cover: 'https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=600&q=80',
     images: [
-      '/realisations/parquet.jpg',
-      '/realisations/couloir.jpg',
       'https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=1200&q=85',
+      'https://images.unsplash.com/photo-1572981779307-38b8cabb2407?w=1200&q=85',
+      'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&q=85',
     ],
   },
 ]
