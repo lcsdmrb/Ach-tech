@@ -8,8 +8,8 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "next build && mkdir -p ../public_html/_next && cp -r .next/static ../public_html/_next/ && cp -r public/. ../public_html/ 2>/dev/null; cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next/",
-    "start": "node .next/standalone/server.js"
+    "build": "next build",
+    "start": "node server.js"
   },
   "dependencies": {
     "framer-motion": "^12.40.0",

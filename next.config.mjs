@@ -23,9 +23,6 @@ const securityHeaders = [
 ]
 
 const nextConfig = {
-  // Standalone output — requis pour Hostinger (sans ça, aucun log runtime)
-  output: 'standalone',
-
   // Compression activée
   compress: true,
 
