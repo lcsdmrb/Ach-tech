@@ -5,7 +5,7 @@ const CSP = [
   "script-src 'self' 'unsafe-inline'",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
   "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net",
-  "img-src 'self' data: blob: https://images.unsplash.com https://picsum.photos",
+  "img-src 'self' data: blob: https://images.unsplash.com https://picsum.photos https://www.google.com",
   "connect-src 'self'",
   "frame-ancestors 'none'",
   "base-uri 'self'",
