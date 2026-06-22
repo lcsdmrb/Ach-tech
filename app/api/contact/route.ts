@@ -1,14 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { Resend } from 'resend'
+import nodemailer from 'nodemailer'
 
 // ── Rate limiter simple en mémoire ──────────────────────────────────────────
-// Maximum 3 demandes par adresse IP toutes les 60 secondes
 const attempts = new Map<string, { count: number; resetAt: number }>()
 
 function isRateLimited(ip: string): boolean {
   const now = Date.now()
   const entry = attempts.get(ip)
-
   if (!entry || now > entry.resetAt) {
     attempts.set(ip, { count: 1, resetAt: now + 60_000 })
     return false
@@ -19,14 +17,13 @@ function isRateLimited(ip: string): boolean {
 }
 
 // ── Sanitisation basique ─────────────────────────────────────────────────────
-// Supprime les balises HTML pour éviter les injections
 function sanitize(value: unknown): string {
   if (typeof value !== 'string') return ''
   return value
     .trim()
-    .slice(0, 2000)                        // limite la taille
-    .replace(/<[^>]*>/g, '')              // enlève balises HTML
-    .replace(/[<>"'`]/g, (c) => {        // encode les caractères spéciaux
+    .slice(0, 2000)
+    .replace(/<[^>]*>/g, '')
+    .replace(/[<>"'`]/g, (c) => {
       const map: Record<string, string> = { '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#x27;', '`': '&#x60;' }
       return map[c] ?? c
     })
@@ -38,7 +35,6 @@ function isValidOrigin(req: NextRequest): boolean {
     process.env.NEXT_PUBLIC_SITE_URL,
     'https://ach-tech.com',
     'https://www.ach-tech.com',
-    // dev uniquement
     ...(process.env.NODE_ENV === 'development'
       ? ['http://localhost:3000', 'http://localhost:3001']
       : []),
@@ -49,23 +45,39 @@ function isValidOrigin(req: NextRequest): boolean {
 
   if (origin)  return allowedOrigins.some(o => origin.startsWith(o))
   if (referer) return allowedOrigins.some(o => referer.startsWith(o))
-  return false // ni origin ni referer = requête suspecte
+  return false
+}
+
+// ── Transporteur SMTP Hostinger ──────────────────────────────────────────────
+function createTransporter() {
+  return nodemailer.createTransport({
+    host:   process.env.SMTP_HOST ?? 'mail.hostinger.com',
+    port:   parseInt(process.env.SMTP_PORT ?? '587', 10),
+    secure: false, // STARTTLS sur port 587
+    auth: {
+      user: process.env.SMTP_USER ?? process.env.CONTACT_FROM_EMAIL ?? '',
+      pass: process.env.SMTP_PASS ?? '',
+    },
+    tls: { rejectUnauthorized: false },
+    connectionTimeout: 8000,
+    socketTimeout: 8000,
+  })
 }
 
 // ── Route POST /api/contact ──────────────────────────────────────────────────
 export async function POST(req: NextRequest) {
-  // 1. Récupérer l'IP du visiteur
+  // 1. IP du visiteur
   const ip =
     req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
     req.headers.get('x-real-ip') ??
     '0.0.0.0'
 
-  // 1b. Vérification CSRF
+  // 1b. CSRF
   if (!isValidOrigin(req)) {
     return NextResponse.json({ error: 'Origine non autorisée.' }, { status: 403 })
   }
 
-  // 2. Vérifier le rate limit
+  // 2. Rate limit
   if (isRateLimited(ip)) {
     return NextResponse.json(
       { error: 'Trop de demandes. Veuillez patienter 1 minute.' },
@@ -73,7 +85,7 @@ export async function POST(req: NextRequest) {
     )
   }
 
-  // 3. Lire le corps de la requête
+  // 3. Body
   let body: Record<string, unknown>
   try {
     body = await req.json()
@@ -81,13 +93,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Requête invalide.' }, { status: 400 })
   }
 
-  // 4. Vérifier le honeypot anti-bot (champ caché que les bots remplissent)
+  // 4. Honeypot
   if (body._trap) {
-    // C'est un bot — on répond 200 pour ne pas le signaler
     return NextResponse.json({ ok: true })
   }
 
-  // 5. Valider et nettoyer les champs
+  // 5. Valider et nettoyer
   const prenom  = sanitize(body.prenom)
   const nom     = sanitize(body.nom)
   const tel     = sanitize(body.tel)
@@ -100,33 +111,31 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Champs obligatoires manquants.' }, { status: 400 })
   }
 
-  // Validation email basique
-  const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
-  if (!emailOk) {
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return NextResponse.json({ error: 'Email invalide.' }, { status: 400 })
   }
 
-  // 6. Envoyer l'email via Resend
-  const apiKey = process.env.RESEND_API_KEY
+  // 6. Vérifier config SMTP
   const toEmail   = process.env.CONTACT_TO_EMAIL
-  const fromEmail = process.env.CONTACT_FROM_EMAIL ?? 'onboarding@resend.dev'
+  const fromEmail = process.env.SMTP_USER ?? process.env.CONTACT_FROM_EMAIL ?? process.env.CONTACT_TO_EMAIL
 
-  if (!apiKey || !toEmail) {
-    // En développement sans clé configurée : on simule le succès
-    console.warn('RESEND_API_KEY ou CONTACT_TO_EMAIL manquant — email non envoyé.')
+  if (!toEmail || !process.env.SMTP_PASS) {
+    // Config incomplète — log et simuler succès pour ne pas bloquer les tests
+    console.warn('SMTP non configuré — email non envoyé. Configurer SMTP_USER, SMTP_PASS, CONTACT_TO_EMAIL.')
     return NextResponse.json({ ok: true })
   }
 
-  const resend = new Resend(apiKey)
-
+  // 7. Envoyer via SMTP Hostinger
   try {
-    const { error: sendError } = await resend.emails.send({
-      from: fromEmail,
-      to:   toEmail,
-      reply_to: email,
-      subject: `Nouveau devis Ach'Tech — ${prenom} ${nom} (${service})`,
+    const transporter = createTransporter()
+
+    await transporter.sendMail({
+      from:     `"Ach'Tech Devis" <${fromEmail}>`,
+      to:       toEmail,
+      replyTo:  email,
+      subject:  `Nouveau devis Ach'Tech — ${prenom} ${nom} (${service})`,
       html: `
-        <h2 style="color:#E85A0A">Nouvelle demande de devis</h2>
+        <h2 style="color:#E85A0A;font-family:sans-serif">Nouvelle demande de devis</h2>
         <table style="border-collapse:collapse;width:100%;font-family:sans-serif;font-size:14px">
           <tr><td style="padding:8px;font-weight:600;color:#555;width:160px">Nom</td><td style="padding:8px">${prenom} ${nom}</td></tr>
           <tr style="background:#f9f9f9"><td style="padding:8px;font-weight:600;color:#555">Téléphone</td><td style="padding:8px">${tel || '—'}</td></tr>
@@ -134,19 +143,20 @@ export async function POST(req: NextRequest) {
           <tr style="background:#f9f9f9"><td style="padding:8px;font-weight:600;color:#555">Service</td><td style="padding:8px">${service}</td></tr>
           <tr><td style="padding:8px;font-weight:600;color:#555">Localité</td><td style="padding:8px">${ville || '—'}</td></tr>
           <tr style="background:#f9f9f9"><td style="padding:8px;font-weight:600;color:#555">Message</td><td style="padding:8px">${message || '—'}</td></tr>
-          <tr><td style="padding:8px;font-weight:600;color:#555">IP</td><td style="padding:8px;color:#aaa;font-size:12px">${ip}</td></tr>
+          <tr><td style="padding:8px;font-weight:600;color:#555;font-size:11px">IP</td><td style="padding:8px;color:#aaa;font-size:11px">${ip}</td></tr>
         </table>
+        <p style="font-family:sans-serif;font-size:12px;color:#999;margin-top:16px">
+          Envoyé depuis ach-tech.com
+        </p>
       `,
     })
 
-    if (sendError) {
-      console.error('Resend error:', sendError)
-      return NextResponse.json({ error: "Erreur d'envoi. Réessayez plus tard." }, { status: 500 })
-    }
-
     return NextResponse.json({ ok: true })
   } catch (err: unknown) {
-    console.error('Unexpected error in /api/contact:', err)
-    return NextResponse.json({ error: 'Erreur serveur. Réessayez plus tard.' }, { status: 500 })
+    console.error('Erreur envoi email SMTP:', err)
+    return NextResponse.json(
+      { error: "Erreur d'envoi. Vérifiez la configuration SMTP." },
+      { status: 500 }
+    )
   }
 }
