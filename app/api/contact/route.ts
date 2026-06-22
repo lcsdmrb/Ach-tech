@@ -51,7 +51,7 @@ function isValidOrigin(req: NextRequest): boolean {
 // ── Transporteur SMTP Hostinger ──────────────────────────────────────────────
 function createTransporter() {
   return nodemailer.createTransport({
-    host:   process.env.SMTP_HOST ?? 'mail.hostinger.com',
+    host:   process.env.SMTP_HOST ?? 'smtp.hostinger.com',
     port:   parseInt(process.env.SMTP_PORT ?? '587', 10),
     secure: false, // STARTTLS sur port 587
     auth: {
