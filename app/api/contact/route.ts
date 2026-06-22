@@ -72,17 +72,17 @@ export async function POST(req: NextRequest) {
     req.headers.get('x-real-ip') ??
     '0.0.0.0'
 
+  // Toujours retourner HTTP 200 — LiteSpeed intercepte les 4xx/5xx avec du HTML
+  // On utilise json.ok true/false pour signaler succès/erreur au client
+
   // 1b. CSRF
   if (!isValidOrigin(req)) {
-    return NextResponse.json({ error: 'Origine non autorisée.' }, { status: 403 })
+    return NextResponse.json({ ok: false, error: 'Origine non autorisée.' })
   }
 
   // 2. Rate limit
   if (isRateLimited(ip)) {
-    return NextResponse.json(
-      { error: 'Trop de demandes. Veuillez patienter 1 minute.' },
-      { status: 429 }
-    )
+    return NextResponse.json({ ok: false, error: 'Trop de demandes. Veuillez patienter 1 minute.' })
   }
 
   // 3. Body
@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
   try {
     body = await req.json()
   } catch {
-    return NextResponse.json({ error: 'Requête invalide.' }, { status: 400 })
+    return NextResponse.json({ ok: false, error: 'Requête invalide.' })
   }
 
   // 4. Honeypot
@@ -108,11 +108,11 @@ export async function POST(req: NextRequest) {
   const message = sanitize(body.message)
 
   if (!prenom || !nom || !email || !service) {
-    return NextResponse.json({ error: 'Champs obligatoires manquants.' }, { status: 400 })
+    return NextResponse.json({ ok: false, error: 'Champs obligatoires manquants.' })
   }
 
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return NextResponse.json({ error: 'Email invalide.' }, { status: 400 })
+    return NextResponse.json({ ok: false, error: 'Email invalide.' })
   }
 
   // 6. Vérifier config SMTP
@@ -153,10 +153,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok: true })
   } catch (err: unknown) {
-    console.error('Erreur envoi email SMTP:', err)
-    return NextResponse.json(
-      { error: "Erreur d'envoi. Vérifiez la configuration SMTP." },
-      { status: 500 }
-    )
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error('Erreur envoi email SMTP:', msg)
+    return NextResponse.json({ ok: false, error: `Erreur d'envoi: ${msg}` })
   }
 }

@@ -47,8 +47,10 @@ export default function ContactForm() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
       })
-      const json = await res.json()
-      if (!res.ok) throw new Error(json.error ?? 'Erreur inconnue.')
+      const text = await res.text()
+      let json: { ok?: boolean; error?: string }
+      try { json = JSON.parse(text) } catch { throw new Error('Erreur serveur. Réessayez plus tard.') }
+      if (!json.ok) throw new Error(json.error ?? 'Erreur inconnue.')
       setStatus('success')
     } catch (err: unknown) {
       setStatus('error')
