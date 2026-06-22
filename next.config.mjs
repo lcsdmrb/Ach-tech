@@ -47,13 +47,8 @@ const securityHeaders = [
   // HSTS 2 ans — à n'activer qu'une fois le HTTPS confirmé sur VPS
   { key: 'Strict-Transport-Security',  value: 'max-age=63072000; includeSubDomains; preload' },
   // CSP principale
-  { key: 'Content-Security-Policy',    value: CSP },
-  // Bloque les requêtes cross-origin non explicitement autorisées
-  { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
-  // Bloque le chargement de ressources cross-origin sans en-tête CORS explicite
-  { key: 'Cross-Origin-Resource-Policy', value: 'same-site' },
-  // Empêche la lecture des réponses cross-origin
-  { key: 'Cross-Origin-Embedder-Policy', value: isDev ? 'unsafe-none' : 'require-corp' },
+  { key: 'Content-Security-Policy', value: CSP },
+  // Note: COEP/COOP/CORP retirés — incompatibles avec le CDN Hostinger
 ]
 
 const nextConfig = {

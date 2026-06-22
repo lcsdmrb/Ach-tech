@@ -11,6 +11,7 @@ const outfit = Outfit({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://ach-tech.com'),
   title: "Ach'Tech — Chauffage & Finitions intérieures en Belgique",
   description:
     "Chauffagiste indépendant en Wallonie & Bruxelles. Installation chaudière, pompe à chaleur, salle de bain, cuisine. Garantie décennale, devis gratuit sous 24h, patron sur chantier.",
