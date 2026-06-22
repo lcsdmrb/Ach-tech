@@ -32,10 +32,10 @@ const nextConfig = {
   async headers() {
     return [
       {
-        source: '/(.*)',
+        // Exclure /_next/static, /_next/image et favicon.ico du matcher (recommandation Kodee/Hostinger)
+        source: '/((?!_next/static|_next/image|favicon\\.ico).*)',
         headers: securityHeaders,
       },
-      // Note: Cache-Control sur /_next/static/ retiré — casse les assets statiques (Kodee/Hostinger)
     ]
   },
 
