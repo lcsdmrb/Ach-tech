@@ -192,7 +192,7 @@ export default function Hero() {
           alt="Intérieur moderne Ach'Tech"
           fill
           className="object-cover object-center animate-kenburns"
-          style={{ filter: 'brightness(0.45) contrast(1.12) saturate(0.65)' }}
+          style={{ filter: 'brightness(0.55) contrast(1.05) saturate(0.75)' }}
           priority
           sizes="100vw"
         />
