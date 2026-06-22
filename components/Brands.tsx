@@ -1,6 +1,5 @@
 'use client'
 import { motion } from 'framer-motion'
-import Image from 'next/image'
 import { partenaires } from '@/data/partenaires'
 
 function BrandPill({ name, logo }: { name: string; logo: string }) {
@@ -9,15 +8,16 @@ function BrandPill({ name, logo }: { name: string; logo: string }) {
                     border border-white/8 rounded-xl bg-white/[0.03]
                     hover:border-orange/25 hover:bg-white/[0.06]
                     transition-all duration-200 cursor-default flex-shrink-0 group">
-      {/* Logo de la marque */}
+      {/* Logo officiel de la marque */}
       <div className="w-7 h-7 flex items-center justify-center flex-shrink-0 rounded-md overflow-hidden bg-white/10">
-        <Image
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
           src={logo}
           alt={`Logo ${name}`}
-          width={28}
-          height={28}
+          width={20}
+          height={20}
           className="object-contain w-5 h-5"
-          unoptimized
+          loading="lazy"
         />
       </div>
       <span className="text-[13px] font-semibold text-white/35
