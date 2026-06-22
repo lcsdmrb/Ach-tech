@@ -119,29 +119,34 @@ export async function POST(req: NextRequest) {
 
   const resend = new Resend(apiKey)
 
-  const { error } = await resend.emails.send({
-    from: fromEmail,
-    to:   toEmail,
-    reply_to: email,
-    subject: `Nouveau devis Ach'Tech — ${prenom} ${nom} (${service})`,
-    html: `
-      <h2 style="color:#E85A0A">Nouvelle demande de devis</h2>
-      <table style="border-collapse:collapse;width:100%;font-family:sans-serif;font-size:14px">
-        <tr><td style="padding:8px;font-weight:600;color:#555;width:160px">Nom</td><td style="padding:8px">${prenom} ${nom}</td></tr>
-        <tr style="background:#f9f9f9"><td style="padding:8px;font-weight:600;color:#555">Téléphone</td><td style="padding:8px">${tel || '—'}</td></tr>
-        <tr><td style="padding:8px;font-weight:600;color:#555">Email</td><td style="padding:8px"><a href="mailto:${email}">${email}</a></td></tr>
-        <tr style="background:#f9f9f9"><td style="padding:8px;font-weight:600;color:#555">Service</td><td style="padding:8px">${service}</td></tr>
-        <tr><td style="padding:8px;font-weight:600;color:#555">Localité</td><td style="padding:8px">${ville || '—'}</td></tr>
-        <tr style="background:#f9f9f9"><td style="padding:8px;font-weight:600;color:#555">Message</td><td style="padding:8px">${message || '—'}</td></tr>
-        <tr><td style="padding:8px;font-weight:600;color:#555">IP</td><td style="padding:8px;color:#aaa;font-size:12px">${ip}</td></tr>
-      </table>
-    `,
-  })
+  try {
+    const { error: sendError } = await resend.emails.send({
+      from: fromEmail,
+      to:   toEmail,
+      reply_to: email,
+      subject: `Nouveau devis Ach'Tech — ${prenom} ${nom} (${service})`,
+      html: `
+        <h2 style="color:#E85A0A">Nouvelle demande de devis</h2>
+        <table style="border-collapse:collapse;width:100%;font-family:sans-serif;font-size:14px">
+          <tr><td style="padding:8px;font-weight:600;color:#555;width:160px">Nom</td><td style="padding:8px">${prenom} ${nom}</td></tr>
+          <tr style="background:#f9f9f9"><td style="padding:8px;font-weight:600;color:#555">Téléphone</td><td style="padding:8px">${tel || '—'}</td></tr>
+          <tr><td style="padding:8px;font-weight:600;color:#555">Email</td><td style="padding:8px"><a href="mailto:${email}">${email}</a></td></tr>
+          <tr style="background:#f9f9f9"><td style="padding:8px;font-weight:600;color:#555">Service</td><td style="padding:8px">${service}</td></tr>
+          <tr><td style="padding:8px;font-weight:600;color:#555">Localité</td><td style="padding:8px">${ville || '—'}</td></tr>
+          <tr style="background:#f9f9f9"><td style="padding:8px;font-weight:600;color:#555">Message</td><td style="padding:8px">${message || '—'}</td></tr>
+          <tr><td style="padding:8px;font-weight:600;color:#555">IP</td><td style="padding:8px;color:#aaa;font-size:12px">${ip}</td></tr>
+        </table>
+      `,
+    })
 
-  if (error) {
-    console.error('Resend error:', error)
-    return NextResponse.json({ error: "Erreur d'envoi. Réessayez plus tard." }, { status: 500 })
+    if (sendError) {
+      console.error('Resend error:', sendError)
+      return NextResponse.json({ error: "Erreur d'envoi. Réessayez plus tard." }, { status: 500 })
+    }
+
+    return NextResponse.json({ ok: true })
+  } catch (err: unknown) {
+    console.error('Unexpected error in /api/contact:', err)
+    return NextResponse.json({ error: 'Erreur serveur. Réessayez plus tard.' }, { status: 500 })
   }
-
-  return NextResponse.json({ ok: true })
 }
