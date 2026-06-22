@@ -23,8 +23,8 @@ const securityHeaders = [
 ]
 
 const nextConfig = {
-  // Standalone output pour déploiement Hostinger (self-contained)
-  output: 'standalone',
+  // output:'standalone' retiré — Hostinger Sites Web gère les assets statiques
+  // nativement via CDN depuis /_next/static/, standalone changeait les chemins
 
   // Compression activée
   compress: true,
