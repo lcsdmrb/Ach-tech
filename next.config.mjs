@@ -35,18 +35,7 @@ const nextConfig = {
         source: '/(.*)',
         headers: securityHeaders,
       },
-      {
-        source: '/_next/static/(.*)',
-        headers: [
-          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
-        ],
-      },
-      {
-        source: '/(.*)',
-        headers: [
-          { key: 'Cache-Control', value: 'public, max-age=3600, stale-while-revalidate=86400' },
-        ],
-      },
+      // Note: Cache-Control sur /_next/static/ retiré — casse les assets statiques (Kodee/Hostinger)
     ]
   },
 
