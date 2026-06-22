@@ -1,0 +1,155 @@
+name: Build & Deploy → Hostinger
+
+# Déclenché à chaque push sur main
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: # permet un déclenchement manuel depuis GitHub Actions
+
+jobs:
+  build-and-deploy:
+    name: Build Next.js + Deploy via SSH
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      # ── 1. Récupérer le code ──────────────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ── 2. Configurer Node.js 20 ─────────────────────────────────────────
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # ── 3. Installer les dépendances (mode CI — rapide et reproductible) ──
+      - name: Install dependencies
+        run: npm ci
+
+      # ── 4. Créer le fichier .env pour le build ───────────────────────────
+      - name: Create .env for build
+        run: |
+          cat > .env.production << EOF
+          NEXT_PUBLIC_SITE_URL=${{ secrets.NEXT_PUBLIC_SITE_URL }}
+          RESEND_API_KEY=${{ secrets.RESEND_API_KEY }}
+          CONTACT_TO_EMAIL=${{ secrets.CONTACT_TO_EMAIL }}
+          CONTACT_FROM_EMAIL=${{ secrets.CONTACT_FROM_EMAIL }}
+          NODE_ENV=production
+          EOF
+
+      # ── 5. Build Next.js (standalone) ────────────────────────────────────
+      - name: Build Next.js
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
+
+      # ── 6. Préparer le paquet de déploiement (standalone) ────────────────
+      - name: Prepare deployment package
+        run: |
+          # Le build standalone contient tout ce qu'il faut pour tourner
+          mkdir -p deploy
+
+          # Copier le serveur standalone
+          cp -r .next/standalone/. deploy/
+
+          # Copier les assets statiques (requis par Next.js standalone)
+          mkdir -p deploy/.next/static
+          cp -r .next/static/. deploy/.next/static/
+
+          # Copier le dossier public (images, logo, etc.)
+          cp -r public/. deploy/public/
+
+          # Copier le fichier .env de production
+          cp .env.production deploy/.env
+
+          # Copier le .hostinger.yml et package.json pour référence
+          cp .hostinger.yml deploy/.hostinger.yml 2>/dev/null || true
+
+          echo "📦 Contenu du paquet de déploiement :"
+          ls -lh deploy/
+          du -sh deploy/
+
+      # ── 7. Déployer sur Hostinger via SSH ────────────────────────────────
+      - name: Deploy to Hostinger via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          timeout: 120s
+          script: |
+            set -e
+            echo "🔄 Déploiement Ach'Tech en cours..."
+
+            DEPLOY_PATH="${{ secrets.DEPLOY_PATH }}"
+
+            # Créer le dossier s'il n'existe pas
+            mkdir -p "$DEPLOY_PATH"
+
+            # Sauvegarder l'ancien .env si présent (pour ne pas l'écraser)
+            if [ -f "$DEPLOY_PATH/.env" ]; then
+              cp "$DEPLOY_PATH/.env" "$DEPLOY_PATH/.env.backup"
+            fi
+
+            echo "✅ Serveur prêt à recevoir les fichiers"
+
+      # ── 8. Copier les fichiers via rsync/SCP ─────────────────────────────
+      - name: Upload files via SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          source: "deploy/"
+          target: ${{ secrets.DEPLOY_PATH }}
+          strip_components: 1
+          timeout: 300s
+
+      # ── 9. Redémarrer l'application Node.js ──────────────────────────────
+      - name: Restart Node.js application
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          timeout: 60s
+          script: |
+            set -e
+            DEPLOY_PATH="${{ secrets.DEPLOY_PATH }}"
+
+            echo "📁 Fichiers déployés :"
+            ls -lh "$DEPLOY_PATH"
+
+            # Redémarrer via PM2 si disponible
+            if command -v pm2 &> /dev/null; then
+              echo "🔄 Redémarrage PM2..."
+              cd "$DEPLOY_PATH"
+              pm2 reload ach-tech --update-env 2>/dev/null || \
+              pm2 start server.js --name ach-tech --env production 2>/dev/null || \
+              echo "⚠️  PM2 non configuré — redémarrez manuellement dans hPanel"
+            else
+              echo "ℹ️  PM2 non trouvé — l'app sera redémarrée par Hostinger hPanel"
+              echo "➡️  Allez dans hPanel → Node.js → Restart"
+            fi
+
+            echo "✅ Déploiement terminé !"
+
+      # ── 10. Vérification finale ────────────────────────────────────────────
+      - name: Verify deployment
+        run: |
+          echo "⏳ Attente démarrage (10s)..."
+          sleep 10
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+            --max-time 15 \
+            "${{ secrets.NEXT_PUBLIC_SITE_URL }}" || echo "000")
+          echo "🌐 Code HTTP : $HTTP_CODE"
+          if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "301" ] || [ "$HTTP_CODE" = "302" ]; then
+            echo "✅ Site en ligne !"
+          else
+            echo "⚠️  Site non joignable (code $HTTP_CODE) — vérifiez hPanel"
+          fi
