@@ -26,9 +26,6 @@ const nextConfig = {
   // Standalone output — requis pour Hostinger Node.js
   output: 'standalone',
 
-  // Trailing slash — aide le routage Hostinger pour les sous-pages
-  trailingSlash: true,
-
   // Compression activée
   compress: true,
 
