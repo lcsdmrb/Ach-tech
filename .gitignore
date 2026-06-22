@@ -25,6 +25,9 @@ Thumbs.db
 !public/**/*.png
 !public/**/*.jpg
 !public/**/*.jpeg
+!app/*.png
+!app/*.jpg
+!app/*.ico
 téléchargement.png
 
 # Scripts d'optimisation (garde le fichier mais pas les backups)
