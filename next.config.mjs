@@ -57,8 +57,8 @@ const securityHeaders = [
 ]
 
 const nextConfig = {
-  // output: 'standalone' — désactivé (Hostinger utilise next start directement)
-  // output: 'standalone',
+  // Standalone output — requis pour Hostinger (empreinte mémoire réduite)
+  output: 'standalone',
 
   // Compression activée
   compress: true,

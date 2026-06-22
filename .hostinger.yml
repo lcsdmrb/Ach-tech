@@ -2,7 +2,7 @@ build:
   command: npm run build
 
 start:
-  command: npm start
+  command: node .next/standalone/server.js
 
 node:
   version: "20"
