@@ -2,18 +2,13 @@
 import { motion } from 'framer-motion'
 import { partenaires } from '@/data/partenaires'
 
-function BrandPill({ name, logo }: { name: string; logo: string }) {
+function BrandPill({ name }: { name: string }) {
   return (
-    <div className="flex items-center gap-3 px-6 py-3 mx-3
+    <div className="flex items-center gap-3 px-7 py-3.5 mx-3
                     border border-white/8 rounded-xl bg-white/[0.03]
                     hover:border-orange/25 hover:bg-white/[0.06]
                     transition-all duration-200 cursor-default flex-shrink-0 group">
-      {/* Logo officiel de la marque — img standard pour URL externe */}
-      <div className="w-7 h-7 flex items-center justify-center flex-shrink-0 rounded-md overflow-hidden bg-white/10">
-        {/* eslint-disable @next/next/no-img-element */}
-        <img src={logo} alt="" width={20} height={20} className="object-contain w-5 h-5" loading="lazy" />
-        {/* eslint-enable @next/next/no-img-element */}
-      </div>
+      <div className="w-1.5 h-1.5 rounded-full bg-orange/40 group-hover:bg-orange transition-colors duration-200" />
       <span className="text-[13px] font-semibold text-white/35
                        group-hover:text-white/70 transition-colors duration-200 whitespace-nowrap">
         {name}
@@ -45,7 +40,7 @@ export default function Brands() {
       <div className="mq-mask pb-10">
         <div className="flex w-max animate-marquee hover:[animation-play-state:paused]">
           {doubled.map((b, i) => (
-            <BrandPill key={`${b.name}-${i}`} name={b.name} logo={b.logo} />
+            <BrandPill key={`${b.name}-${i}`} name={b.name} />
           ))}
         </div>
       </div>
