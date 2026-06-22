@@ -6,6 +6,3 @@ start:
 
 node:
   version: "20"
-
-env:
-  PORT: 3000
