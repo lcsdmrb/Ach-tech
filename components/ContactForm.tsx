@@ -42,7 +42,7 @@ export default function ContactForm() {
     setStatus('loading')
     try {
       // TODO: brancher service d'envoi d'email (EmailJS, Formspree, ou /api/contact)
-      const res = await fetch('/api/contact', {
+      const res = await fetch('/api/devis', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
